@@ -1,13 +1,13 @@
-package com.joysistvi.clothingretailapp.View;
+package com.joysistvi.clothingretailapp.view;
 
-import com.joysistvi.clothingretailapp.Controller.User;
-import com.joysistvi.clothingretailapp.Service.UserService;
+import com.joysistvi.clothingretailapp.controller.User;
+import com.joysistvi.clothingretailapp.service.UserService;
 
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Scanner;
-import static com.joysistvi.clothingretailapp.View.ConsoleOutput.clearScreen;
-import static com.joysistvi.clothingretailapp.View.ConsoleOutput.truncate;
+import static com.joysistvi.clothingretailapp.view.ConsoleOutput.clearScreen;
+import static com.joysistvi.clothingretailapp.view.ConsoleOutput.truncate;
 
 public class UserView {
 
@@ -23,7 +23,7 @@ public class UserView {
         while (true) {
             clearScreen();
             System.out.println("\n=== MANAGE USERS ===");
-            System.out.println("1. View All Users");
+            System.out.println("1. view All Users");
             System.out.println("2. Create/Register User");
             System.out.println("3. Update User");
             System.out.println("4. Search User");

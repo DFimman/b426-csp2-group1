@@ -1,19 +1,17 @@
 package com.joysistvi.clothingretailapp;
 
-import com.joysistvi.clothingretailapp.Controller.Product_Variant;
-import com.joysistvi.clothingretailapp.Repository.Product_VariantRepository;
-import com.joysistvi.clothingretailapp.Repository.Product_VariantRepositoryImpl;
-import com.joysistvi.clothingretailapp.Repository.UserRepository;
-import com.joysistvi.clothingretailapp.Repository.UserRepositoryImpl;
-import com.joysistvi.clothingretailapp.Service.Product_VariantService;
-import com.joysistvi.clothingretailapp.Service.Product_VariantServiceImpl;
-import com.joysistvi.clothingretailapp.Service.UserService;
-import com.joysistvi.clothingretailapp.Service.UserServiceImpl;
-import com.joysistvi.clothingretailapp.View.Product_VariantView;
-import com.joysistvi.clothingretailapp.View.UserView;
+import com.joysistvi.clothingretailapp.repository.Product_VariantRepository;
+import com.joysistvi.clothingretailapp.repository.Product_VariantRepositoryImpl;
+import com.joysistvi.clothingretailapp.repository.UserRepository;
+import com.joysistvi.clothingretailapp.repository.UserRepositoryImpl;
+import com.joysistvi.clothingretailapp.service.Product_VariantService;
+import com.joysistvi.clothingretailapp.service.Product_VariantServiceImpl;
+import com.joysistvi.clothingretailapp.service.UserService;
+import com.joysistvi.clothingretailapp.service.UserServiceImpl;
+import com.joysistvi.clothingretailapp.view.Product_VariantView;
+import com.joysistvi.clothingretailapp.view.UserView;
 import com.joysistvi.clothingretailapp.config.DbConnection;
-import java.sql.Connection;
-import java.util.List;
+
 import java.util.Scanner;
 
 public class App {

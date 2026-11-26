@@ -1,5 +1,5 @@
-package com.joysistvi.clothingretailapp.Service;
-import com.joysistvi.clothingretailapp.Controller.User;
+package com.joysistvi.clothingretailapp.service;
+import com.joysistvi.clothingretailapp.controller.User;
 import java.util.List;
 
 public interface UserService {

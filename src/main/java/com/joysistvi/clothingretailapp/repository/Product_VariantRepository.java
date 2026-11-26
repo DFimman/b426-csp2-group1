@@ -1,5 +1,5 @@
-package com.joysistvi.clothingretailapp.Repository;
-import com.joysistvi.clothingretailapp.Controller.Product_Variant;
+package com.joysistvi.clothingretailapp.repository;
+import com.joysistvi.clothingretailapp.controller.Product_Variant;
 import java.util.List;
 public interface Product_VariantRepository {
 

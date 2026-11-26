@@ -1,7 +1,7 @@
-package com.joysistvi.clothingretailapp.Service;
+package com.joysistvi.clothingretailapp.service;
 
-import com.joysistvi.clothingretailapp.Controller.User;
-import com.joysistvi.clothingretailapp.Repository.UserRepository;
+import com.joysistvi.clothingretailapp.controller.User;
+import com.joysistvi.clothingretailapp.repository.UserRepository;
 import org.mindrot.jbcrypt.BCrypt;
 
 import java.util.Collections;

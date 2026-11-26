@@ -1,6 +1,6 @@
-package com.joysistvi.clothingretailapp.Repository;
+package com.joysistvi.clothingretailapp.repository;
 
-import com.joysistvi.clothingretailapp.Controller.User;
+import com.joysistvi.clothingretailapp.controller.User;
 import com.joysistvi.clothingretailapp.config.DbConnection;
         
 import java.sql.Connection;

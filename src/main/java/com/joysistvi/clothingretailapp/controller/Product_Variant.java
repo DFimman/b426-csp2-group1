@@ -1,4 +1,4 @@
-package com.joysistvi.clothingretailapp.Controller;
+package com.joysistvi.clothingretailapp.controller;
 
 public class Product_Variant {
     private int variant_id;

@@ -1,14 +1,14 @@
-package com.joysistvi.clothingretailapp.View;
+package com.joysistvi.clothingretailapp.view;
 
-import com.joysistvi.clothingretailapp.Controller.Product_Variant;
-import com.joysistvi.clothingretailapp.Service.Product_VariantService;
+import com.joysistvi.clothingretailapp.controller.Product_Variant;
+import com.joysistvi.clothingretailapp.service.Product_VariantService;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Scanner;
-import static com.joysistvi.clothingretailapp.View.ConsoleOutput.clearScreen;
-import static com.joysistvi.clothingretailapp.View.ConsoleOutput.truncate;
+import static com.joysistvi.clothingretailapp.view.ConsoleOutput.clearScreen;
+import static com.joysistvi.clothingretailapp.view.ConsoleOutput.truncate;
 
 public class Product_VariantView {
 

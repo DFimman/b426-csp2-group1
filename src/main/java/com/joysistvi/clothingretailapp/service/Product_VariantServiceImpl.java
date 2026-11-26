@@ -1,7 +1,7 @@
-package com.joysistvi.clothingretailapp.Service;
+package com.joysistvi.clothingretailapp.service;
 
-import com.joysistvi.clothingretailapp.Controller.Product_Variant;
-import com.joysistvi.clothingretailapp.Repository.Product_VariantRepository;
+import com.joysistvi.clothingretailapp.controller.Product_Variant;
+import com.joysistvi.clothingretailapp.repository.Product_VariantRepository;
 
 import java.util.Collections;
 import java.util.List;

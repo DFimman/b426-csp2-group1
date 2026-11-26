@@ -1,4 +1,4 @@
-package com.joysistvi.clothingretailapp.Controller;
+package com.joysistvi.clothingretailapp.controller;
 import java.sql.Timestamp;
 public class User {
     private int id;

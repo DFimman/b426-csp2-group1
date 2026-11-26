@@ -1,4 +1,4 @@
-package com.joysistvi.clothingretailapp.View;
+package com.joysistvi.clothingretailapp.view;
 
 public final class ConsoleOutput {
 
