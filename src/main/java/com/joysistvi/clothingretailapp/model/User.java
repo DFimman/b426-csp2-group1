@@ -1,9 +1,12 @@
-package com.joysistvi.clothingretailapp.controller;
+
+package com.joysistvi.clothingretailapp.model;
+
 import java.sql.Timestamp;
+
 public class User {
     private int id;
     private String username;
-    private String password;
+    private String passwordHash;
     private String full_name;
     private String role;
     private boolean archived;
@@ -12,22 +15,22 @@ public class User {
     public User() {
     }
 
-    public User(int id, String username, String password, String full_name, String role, Timestamp created_at) {
+    public User(int id, String username, String passwordHash,
+                String full_name, String role, Timestamp created_at) {
         this.id = id;
         this.username = username;
-        this.password = password;
+        this.passwordHash = passwordHash;
         this.full_name = full_name;
         this.role = role;
         this.created_at = created_at;
-
     }
 
-    public User(String username, String password, String email, String role) {
+    public User(String username, String passwordHash,
+                String full_name, String role) {
         this.username = username;
-        this.password = password;
+        this.passwordHash = passwordHash;
         this.full_name = full_name;
         this.role = role;
-
     }
 
     public int getId() {
@@ -46,12 +49,12 @@ public class User {
         this.username = username;
     }
 
-    public String getPassword() {
-        return password;
+    public String getPasswordHash() {
+        return passwordHash;
     }
 
-    public void setPassword(String password) {
-        this.password = password;
+    public void setPasswordHash(String passwordHash) {
+        this.passwordHash = passwordHash;
     }
 
     public String getFull_name() {
@@ -78,13 +81,11 @@ public class User {
         this.archived = archived;
     }
 
-    public void setCreated_at(Timestamp createdAt) {
-        this.created_at = createdAt;
-    }
-
-    public Timestamp isCreated_at() {
+    public Timestamp getCreated_at() {
         return created_at;
     }
 
-
+    public void setCreated_at(Timestamp created_at) {
+        this.created_at = created_at;
+    }
 }

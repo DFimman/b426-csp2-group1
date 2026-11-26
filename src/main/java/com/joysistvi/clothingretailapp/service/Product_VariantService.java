@@ -1,6 +1,6 @@
 package com.joysistvi.clothingretailapp.service;
 
-import com.joysistvi.clothingretailapp.controller.Product_Variant;
+import com.joysistvi.clothingretailapp.model.Product_Variant;
 import java.util.List;
 
 public interface Product_VariantService {

@@ -1,6 +1,6 @@
 package com.joysistvi.clothingretailapp.view;
 
-import com.joysistvi.clothingretailapp.controller.User;
+import com.joysistvi.clothingretailapp.model.User;
 import com.joysistvi.clothingretailapp.service.UserService;
 
 import java.util.List;
@@ -66,34 +66,42 @@ public class UserView {
         printUsers(users, title);
     }
 
+
     public void promptCreateUser() {
         clearScreen();
         System.out.println("\n----- Create New User -----");
+
         String username = getStringInput("Enter username: ");
         if (username == null) {
             return;
         }
+
         String password = getStringInput("Enter password: ");
         if (password == null) {
             return;
         }
+
         String fullName = getStringInput("Enter full name: ");
         if (fullName == null) {
             return;
         }
-        String role = promptForRole();
-        if (role == null) {
-            return;
-        }
 
-        boolean created = userService.createUser(username, password, fullName, role);
+        String role = "USER";
+
+        boolean created = userService.createUser(
+                username, password, fullName, role
+        );
 
         if (created) {
-            System.out.println("\nUser '" + username.trim() + "' created successfully as " + role + "!");
+            System.out.println(
+                    "\nUser '" + username.trim() +
+                            "' created successfully!"
+            );
         } else {
             System.out.println("\nFailed to create user.");
         }
     }
+
 
     public void promptUpdateUser() {
         clearScreen();
@@ -214,24 +222,6 @@ public class UserView {
         }
     }
 
-    private String promptForRole() {
-        while (true) {
-            System.out.println("\nSelect role:");
-            System.out.println("1. Staff");
-            System.out.println("2. User");
-            System.out.println("0. Cancel");
-            Integer choice = promptForInt("Choose a role: ");
-            if (choice == null || choice == 0) {
-                return null;
-            }
-
-            switch (choice) {
-                case 1 -> { return "staff"; }
-                case 2 -> { return "user"; }
-                default -> System.out.println("\nValidation Error: Please choose 1, 2, or 0.");
-            }
-        }
-    }
 
     private Integer promptForInt(String prompt) {
         while (true) {

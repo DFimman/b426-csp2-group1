@@ -1,5 +1,5 @@
 package com.joysistvi.clothingretailapp.repository;
-import com.joysistvi.clothingretailapp.controller.User;
+import com.joysistvi.clothingretailapp.model.User;
 import java.util.List;
 public interface UserRepository {
 

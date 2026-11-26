@@ -1,6 +1,6 @@
 package com.joysistvi.clothingretailapp.service;
 
-import com.joysistvi.clothingretailapp.controller.Product_Variant;
+import com.joysistvi.clothingretailapp.model.Product_Variant;
 import com.joysistvi.clothingretailapp.repository.Product_VariantRepository;
 
 import java.util.Collections;
@@ -95,7 +95,7 @@ public class Product_VariantServiceImpl implements Product_VariantService {
         variant.setSku(sku.trim());
         variant.setSize(size.trim());
         variant.setColor(color.trim());
-        variant.setUnit_prize(unit_prize);
+        variant.setUnit_price(unit_prize);
         variant.setStock_quantity(stock_quantity);
         variant.setReorder_level(reorder_level);
         return variantRepository.update(variant);

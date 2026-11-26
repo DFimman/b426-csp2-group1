@@ -1,6 +1,6 @@
 package com.joysistvi.clothingretailapp.view;
 
-import com.joysistvi.clothingretailapp.controller.Product_Variant;
+import com.joysistvi.clothingretailapp.model.Product_Variant;
 import com.joysistvi.clothingretailapp.service.Product_VariantService;
 
 import java.util.ArrayList;
@@ -85,7 +85,7 @@ public class Product_VariantView {
                     variant.getProduct_id(),
                     truncate(variant.getSize(), 8),
                     truncate(variant.getColor(), 12),
-                    variant.getUnit_prize(),
+                    variant.getUnit_price(),
                     variant.getStock_quantity() > 0 ? "In stock" : "Out of stock");
         }
     }
