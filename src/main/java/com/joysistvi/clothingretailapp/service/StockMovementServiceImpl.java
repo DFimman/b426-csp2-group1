@@ -26,10 +26,10 @@ public class StockMovementServiceImpl implements StockMovementService {
             connection.setAutoCommit(false);
             try {
                 requireAdmin(connection, actorId);
-                var variant = guard.lockActiveVariant(connection, variantId);
+                var variant = guard.findActiveVariant(connection, variantId);
                 if (variant == null) throw new IllegalArgumentException("Variant or its parent is archived or missing");
                 int updatedStock = MovementRules.nextStock(variant.stockQuantity(), delta);
-                guard.changeStock(connection, variantId, variant.stockQuantity(), updatedStock);
+                guard.updateStock(connection, variantId, updatedStock);
                 var movement = new StockMovement(0, variantId, actorId, null, type, delta, reason.trim(), null);
                 int id = movements.insert(connection, movement);
                 StockMovement stored = movements.findById(connection, id);

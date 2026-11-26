@@ -6,12 +6,12 @@ import java.util.Scanner;
 
 public class StockMovementView {
     private final StockMovementService service;
-    private final Session2Input input;
+    private final ConsoleInput input;
     private final Scanner scanner;
 
     public StockMovementView(StockMovementService service, Scanner scanner) {
         this.service = service; this.scanner = scanner;
-        this.input = new Session2Input(scanner);
+        this.input = new ConsoleInput(scanner);
     }
 
     public void handleMenu(int authenticatedAdminId) {
@@ -19,7 +19,7 @@ public class StockMovementView {
             System.out.println("\n=== STOCK MOVEMENTS (ADMIN) ===");
             System.out.println("1. Restock variant");
             System.out.println("2. Adjust variant stock (+/-)");
-            System.out.println("3. view movement history");
+            System.out.println("3. View movement history");
             System.out.println("0. Back");
             try {
                 int choice = input.integer("Select: ");

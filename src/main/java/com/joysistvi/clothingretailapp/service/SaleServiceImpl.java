@@ -25,12 +25,10 @@ public class SaleServiceImpl implements SaleService {
     public SaleReceipt checkout(int userId, Map<Integer, Integer> cart, BigDecimal cash) throws SQLException {
         if (userId <= 0 || cart == null || cart.isEmpty()) throw new IllegalArgumentException("Valid user and nonempty cart required");
         BigDecimal received = SaleTotals.money(cash);
-        // TreeMap produces one line per variant in a consistent lock order.
-        TreeMap<Integer, Integer> ordered = new TreeMap<>();
+        // Validate every cart item before checkout.
         for (var entry : cart.entrySet()) {
             if (entry.getKey() == null || entry.getKey() <= 0 || entry.getValue() == null || entry.getValue() <= 0)
                 throw new IllegalArgumentException("Variant ID and quantity must be positive");
-            ordered.put(entry.getKey(), entry.getValue());
         }
 
         try (Connection connection = db.connect()) {
@@ -39,15 +37,15 @@ public class SaleServiceImpl implements SaleService {
             try {
                 requireActiveUser(connection, userId);
                 List<SaleItem> pending = new ArrayList<>();
-                Map<Integer, Integer> stockBefore = new HashMap<>();
-                for (var entry : ordered.entrySet()) {
+                Map<Integer, Integer> remainingStock = new HashMap<>();
+                for (var entry : cart.entrySet()) {
                     int variantId = entry.getKey(), quantity = entry.getValue();
-                    var variant = guard.lockActiveVariant(connection, variantId);
+                    var variant = guard.findActiveVariant(connection, variantId);
                     if (variant == null) throw new IllegalArgumentException("Variant " + variantId + " is archived or missing");
                     if (variant.stockQuantity() < quantity) throw new IllegalArgumentException("Insufficient stock for variant " + variantId);
                     BigDecimal price = SaleTotals.money(variant.unitPrice());
                     pending.add(new SaleItem(0, 0, variantId, quantity, price, SaleTotals.subtotal(quantity, price)));
-                    stockBefore.put(variantId, variant.stockQuantity());
+                    remainingStock.put(variantId, MovementRules.nextStock(variant.stockQuantity(), -quantity));
                 }
 
                 BigDecimal total = SaleTotals.total(pending);
@@ -56,8 +54,7 @@ public class SaleServiceImpl implements SaleService {
                 List<SaleItem> savedItems = new ArrayList<>();
                 for (SaleItem line : pending) {
                     int variantId = line.getVariantId();
-                    int newStock = MovementRules.nextStock(stockBefore.get(variantId), -line.getQuantity());
-                    guard.changeStock(connection, variantId, stockBefore.get(variantId), newStock);
+                    guard.updateStock(connection, variantId, remainingStock.get(variantId));
                     SaleItem saved = new SaleItem(0, saleId, variantId, line.getQuantity(), line.getUnitPrice(), line.getSubtotal());
                     int itemId = items.insert(connection, saved);
                     savedItems.add(new SaleItem(itemId, saleId, variantId, line.getQuantity(), line.getUnitPrice(), line.getSubtotal()));

@@ -10,12 +10,12 @@ import java.util.Scanner;
 public class SaleView {
     private final SaleService sales;
     private final SaleItemView itemView;
-    private final Session2Input input;
+    private final ConsoleInput input;
     private final Scanner scanner;
 
     public SaleView(SaleService sales, SaleItemView itemView, Scanner scanner) {
         this.sales = sales; this.itemView = itemView;
-        this.input = new Session2Input(scanner); this.scanner = scanner;
+        this.input = new ConsoleInput(scanner); this.scanner = scanner;
     }
 
     // The authenticated user ID must come from the login session, never from this menu.
