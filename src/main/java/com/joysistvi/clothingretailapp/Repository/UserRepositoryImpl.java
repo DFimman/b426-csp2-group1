@@ -66,7 +66,7 @@ public class UserRepositoryImpl implements UserRepository {
 
     @Override
     public User findById(int id) {
-        String sql = "SELECT * FROM users WHERE id = ?";
+        String sql = "SELECT * FROM users WHERE user_id = ?";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setInt(1, id);
             try (ResultSet rs = ps.executeQuery()) {
@@ -82,12 +82,12 @@ public class UserRepositoryImpl implements UserRepository {
 
     @Override
     public List<User> findAllActive() {
-        return queryList("SELECT * FROM users WHERE archived = FALSE", null);
+        return queryList("SELECT * FROM users WHERE is_archived = FALSE", null);
     }
 
     @Override
     public List<User> findAllArchived() {
-        return queryList("SELECT * FROM users WHERE archived = TRUE", null);
+        return queryList("SELECT * FROM users WHERE is_archived = TRUE", null);
     }
 
     @Override
@@ -147,17 +147,17 @@ public class UserRepositoryImpl implements UserRepository {
 
     @Override
     public boolean deleteById(int id) {
-        return updateById("DELETE FROM users WHERE id = ?", id);
+        return updateById("DELETE FROM users WHERE user_id = ?", id);
     }
 
     @Override
     public boolean archiveById(int id) {
-        return updateById("UPDATE users SET archived = TRUE WHERE id = ?", id);
+        return updateById("UPDATE users SET is_archived = TRUE WHERE user_id = ?", id);
     }
 
     @Override
     public boolean restoreById(int id) {
-        return updateById("UPDATE users SET archived = FALSE WHERE id = ?", id);
+        return updateById("UPDATE users SET is_archived = FALSE WHERE user_id = ?", id);
     }
 
     @Override
