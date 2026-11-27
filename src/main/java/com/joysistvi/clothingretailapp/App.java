@@ -117,7 +117,6 @@ public class App {
         // Product CRUD
         // app.productsView.promptCreateProduct();
         // app.productsView.promptUpdateProduct();
-        // System.out.println(app.productsService.findById(1));
 
         // Search Products
         // app.productsView.promptSearchProducts();
@@ -136,52 +135,14 @@ public class App {
         // PRODUCT VARIANT MANUAL TESTING
         // ==========================================
 
-        // Product Catalog Menu
         // app.productVariantView.handleMenu();
-
-        // View Variants
-        // System.out.println(app.productVariantService.getAllActiveVariants().size());
-        // System.out.println(app.productVariantService.getAllArchivedVariants().size());
-        // System.out.println(app.productVariantService.getLowStockVariants().size());
-
-        // Find Variant
-        // System.out.println(app.productVariantService.findById(1));
-        // System.out.println(app.productVariantService.findBySku("TEST-001"));
-        // System.out.println(app.productVariantService.getVariantsByProduct(1).size());
-
-        // Create Variant
-        // New variants must start with zero stock. Restock through Stock Movements.
-        // app.productVariantService.createVariant(
-        //         1, "TEST-001", "M", "Black", 499.00, 0, 5
-        // );
-
-        // Update Variant
-        // app.productVariantService.updateVariant(
-        //         1, 1, "TEST-001", "L", "Black", 599.00, 0, 5
-        // );
-
-        // Search Variant
-        // System.out.println(app.productVariantService.searchVariants("TEST").size());
-
-        // Archive and Restore
-        // app.productVariantService.archiveVariant(1);
-        // app.productVariantService.restoreVariant(1);
-
-        // Delete Variant (maintenance only)
-        // app.productVariantService.deleteVariant(1);
 
 
         // ==========================================
         // SALES MANUAL TESTING
         // ==========================================
 
-        // Replace the ID with an active user_id for manual testing.
         // app.saleView.handleMenu(1);
-
-        // Menu Operations:
-        // 1. New Cash Sale
-        // 2. Sales History
-        // 3. Reprint Receipt
 
 
         // ==========================================
@@ -197,13 +158,7 @@ public class App {
         // STOCK MOVEMENT MANUAL TESTING
         // ==========================================
 
-        // Replace the ID with an existing active ADMIN user_id.
-        // Testing only; the authenticated session will supply this ID later.
         // app.stockMovementView.handleMenu(1);
 
-        // Menu Operations:
-        // 1. Restock Variant
-        // 2. Adjust Stock (+/-)
-        // 3. View Stock Movement History
     }
 }
