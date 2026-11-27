@@ -1,7 +1,9 @@
 package com.joysistvi.clothingretailapp.view;
 
 import com.joysistvi.clothingretailapp.model.Product_Variant;
+import com.joysistvi.clothingretailapp.model.Products;
 import com.joysistvi.clothingretailapp.service.Product_VariantService;
+import com.joysistvi.clothingretailapp.service.ProductsService;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,10 +15,19 @@ import static com.joysistvi.clothingretailapp.view.ConsoleOutput.truncate;
 public class Product_VariantView {
 
     private final Product_VariantService variantService;
+    private final ProductsService productsService;
     private final Scanner scanner;
 
+    // Keeps the original constructor available for manual tests.
     public Product_VariantView(Product_VariantService variantService, Scanner scanner) {
+        this(variantService, null, scanner);
+    }
+
+    // Uses the products service to display names in the cashier catalog.
+    public Product_VariantView(Product_VariantService variantService,
+                               ProductsService productsService, Scanner scanner) {
         this.variantService = variantService;
+        this.productsService = productsService;
         this.scanner = scanner;
     }
 
@@ -26,7 +37,7 @@ public class Product_VariantView {
             clearScreen();
             System.out.println("\n=== PRODUCT CATALOG ===");
             System.out.println("1. Browse All Items");
-            System.out.println("2. Search by Size or Color");
+            System.out.println("2. Search by Product, SKU, Size or Color");
             System.out.println("0. Back");
 
             Integer choice = promptForInt("Choose an option: ");
@@ -57,7 +68,7 @@ public class Product_VariantView {
     private void promptSearch() {
         clearScreen();
         System.out.println("\n----- Search Items -----");
-        String keyword = getStringInput("Enter size or color: ");
+        String keyword = getStringInput("Enter product name, SKU, size or color: ");
         if (keyword == null) {
             return;
         }
@@ -67,17 +78,20 @@ public class Product_VariantView {
         for (Product_Variant variant : variantService.getAllActiveVariants()) {
             boolean sizeMatches = variant.getSize() != null && variant.getSize().toLowerCase().contains(search);
             boolean colorMatches = variant.getColor() != null && variant.getColor().toLowerCase().contains(search);
-            if (sizeMatches || colorMatches) {
+            boolean skuMatches = variant.getSku() != null && variant.getSku().toLowerCase().contains(search);
+            boolean productMatches = productName(variant.getProduct_id()).toLowerCase().contains(search);
+            if (sizeMatches || colorMatches || skuMatches || productMatches) {
                 matches.add(variant);
             }
         }
         printCatalog(matches, "Search Results");
     }
 
-    // Prints product variants in a formatted table.
+    // Prints the variant ID, product name and stock needed for checkout.
     private void printCatalog(List<Product_Variant> variants, String title) {
         System.out.println("\n----- " + title + " -----");
-        System.out.printf("%-8s| %-8s| %-12s| %-10s| %-14s%n", "Product", "Size", "Color", "Price", "Availability");
+        System.out.printf("%-7s %-13s %-19s %-8s %-11s %-9s %-7s %-12s%n",
+                "ID", "SKU", "Product", "Size", "Color", "Price", "Stock", "Availability");
 
         if (variants == null || variants.isEmpty()) {
             System.out.println("No items found.");
@@ -85,13 +99,20 @@ public class Product_VariantView {
         }
 
         for (Product_Variant variant : variants) {
-            System.out.printf("%-8d| %-8s| %-12s| %-10.2f| %-14s%n",
-                    variant.getProduct_id(),
-                    truncate(variant.getSize(), 8),
-                    truncate(variant.getColor(), 12),
-                    variant.getUnit_price(),
+            System.out.printf("%-7d %-13s %-19s %-8s %-11s %-9.2f %-7d %-12s%n",
+                    variant.getVariant_id(), truncate(variant.getSku(), 13),
+                    truncate(productName(variant.getProduct_id()), 19),
+                    truncate(variant.getSize(), 8), truncate(variant.getColor(), 11),
+                    variant.getUnit_price(), variant.getStock_quantity(),
                     variant.getStock_quantity() > 0 ? "In stock" : "Out of stock");
         }
+    }
+
+    // Resolves the current product name without changing variant data.
+    private String productName(int productId) {
+        if (productsService == null) return "Product #" + productId;
+        Products product = productsService.findById(productId);
+        return product == null ? "Product #" + productId : product.getName();
     }
 
     // Repeatedly requests a valid whole number.
