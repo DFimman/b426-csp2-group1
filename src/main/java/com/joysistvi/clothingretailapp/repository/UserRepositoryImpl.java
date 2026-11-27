@@ -20,6 +20,7 @@ public class UserRepositoryImpl implements UserRepository {
         }
     }
 
+    // Converts one database row to a user object.
     private User mapRow(ResultSet rs) throws SQLException {
         User user = new User();
         user.setId(rs.getInt("user_id"));
@@ -32,6 +33,7 @@ public class UserRepositoryImpl implements UserRepository {
         return user;
     }
 
+    // Executes a query and returns matching records.
     private List<User> queryList(String sql, String param) {
         List<User> users = new ArrayList<>();
 
@@ -146,6 +148,7 @@ public class UserRepositoryImpl implements UserRepository {
         return false;
     }
 
+
     @Override
     public boolean update(User user) {
         String sql = "UPDATE users " +
@@ -170,6 +173,7 @@ public class UserRepositoryImpl implements UserRepository {
                 "DELETE FROM users WHERE user_id = ?", id
         );
     }
+
 
     @Override
     public boolean archiveById(int id) {

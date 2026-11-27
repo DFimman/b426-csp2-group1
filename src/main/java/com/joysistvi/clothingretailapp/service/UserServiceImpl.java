@@ -39,12 +39,14 @@ public class UserServiceImpl implements UserService {
         return userRepository.findAllArchived();
     }
 
+    // Validates and registers a user account using default role
     @Override
     public boolean createUser(String username, String rawPassword,
                               String full_name) {
         return createUser(username, rawPassword, full_name, ROLE_USER);
     }
 
+    // Validates and registers a user account
     @Override
     public boolean createUser(String username, String rawPassword,
                               String full_name, String role) {
@@ -163,11 +165,13 @@ public class UserServiceImpl implements UserService {
         return userRepository.searchByUsername(keyword.trim());
     }
 
+    // Checks the supplied login credentials.
     @Override
     public boolean loginUser(String username, String candidatePassword) {
         return authenticateUser(username, candidatePassword) != null;
     }
 
+    // Authenticates the user with the stored password hash.
     @Override
     public User authenticateUser(String username, String candidatePassword) {
         if (username == null || username.trim().isEmpty()) {

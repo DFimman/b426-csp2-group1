@@ -17,6 +17,7 @@ public class StockMovementServiceImpl implements StockMovementService {
         this.db = db; this.movements = movements; this.guard = guard;
     }
 
+    // Records and audits a manual stock change.
     @Override
     public StockMovement recordManualChange(int actorId, int variantId, String type, int delta, String reason) throws SQLException {
         if (variantId <= 0) throw new IllegalArgumentException("Variant ID must be positive");
@@ -45,6 +46,7 @@ public class StockMovementServiceImpl implements StockMovementService {
         }
     }
 
+    // Lists the relevant transaction or movement history.
     @Override
     public List<StockMovement> history(int actorId, int variantId) throws SQLException {
         if (variantId <= 0) throw new IllegalArgumentException("Variant ID must be positive");
@@ -54,6 +56,7 @@ public class StockMovementServiceImpl implements StockMovementService {
         }
     }
 
+    // Checks that the current user has Admin access.
     private void requireAdmin(Connection connection, int actorId) throws SQLException {
         if (actorId <= 0 || !"ADMIN".equals(guard.activeRole(connection, actorId)))
             throw new SecurityException("Only active admins can change or inspect stock movements");

@@ -6,6 +6,8 @@ import java.util.List;
 public class SaleItemServiceImpl implements SaleItemService {
     private final SaleService sales;
     public SaleItemServiceImpl(SaleService sales) { this.sales = sales; }
+
+    // Finds sale items belonging to a sale.
     @Override
     public List<SaleItem> findBySaleId(int authenticatedUserId, int saleId) throws SQLException {
         return sales.receipt(authenticatedUserId, saleId).getItems();

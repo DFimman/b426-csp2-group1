@@ -19,6 +19,7 @@ public class UserView {
         this.scanner = scanner;
     }
 
+    // Displays and handles the user menu.
     public void handleMenu() {
         while (true) {
             clearScreen();
@@ -53,6 +54,7 @@ public class UserView {
             if (!ConsoleOutput.pause(scanner)) return;
         }
     }
+
 
     public void displayAllUsers() {
         displayAllUsers(false);
@@ -148,6 +150,7 @@ public class UserView {
         }
     }
 
+
     public void promptArchiveUser() {
         clearScreen();
         System.out.println("\n----- Archive User -----");
@@ -164,6 +167,7 @@ public class UserView {
             System.out.println("\nNo user found with ID " + id + ".");
         }
     }
+
 
     public void promptRestoreUser() {
         clearScreen();
@@ -200,6 +204,7 @@ public class UserView {
         List<User> users = userService.searchUsers(keyword);
         printUsers(users, "Search Users");
     }
+
 
     public void promptLoginUser() {
         clearScreen();

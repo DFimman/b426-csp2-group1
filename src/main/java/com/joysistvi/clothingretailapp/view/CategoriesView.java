@@ -17,6 +17,7 @@ public class CategoriesView {
         this.input = new ConsoleInput(scanner);
     }
 
+    // Displays and handles the category menu.
     public void handleMenu() {
         while (true) {
             ConsoleOutput.clearScreen();
@@ -100,7 +101,6 @@ public class CategoriesView {
         System.out.println(restored ? "Category restored successfully!" : "No category restored.");
     }
 
-    // Kept for maintenance only. Regular store operations use Archive and Restore.
     public void promptDeleteCategory() {
         int id = input.positive("Enter category ID to permanently delete: ");
         String confirm = input.text("Type YES to confirm permanent deletion: ");
@@ -112,6 +112,7 @@ public class CategoriesView {
         System.out.println(deleted ? "Category deleted." : "Category could not be deleted.");
     }
 
+    // Prints categories in a formatted table.
     private void printCategoryTable(String title, List<Categories> categories) {
         String border = "+------+----------------------+------------------------------+";
         System.out.println(title);

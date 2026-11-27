@@ -60,6 +60,7 @@ public class ProductsRepositoryImpl implements ProductsRepository {
         return products;
     }
 
+    // Counts active products in the specified category.
     @Override
     public int countActiveByCategory(int categoryId) {
         String query = "SELECT COUNT(*) AS total FROM products WHERE is_archived = 0 AND category_id = ?";
@@ -76,6 +77,7 @@ public class ProductsRepositoryImpl implements ProductsRepository {
         }
     }
 
+    // Saves a product record to the database.
     @Override
     public boolean save(Products product) {
         String query = "INSERT INTO products (name, description, category_id) VALUES (?, ?, ?)";
@@ -107,7 +109,6 @@ public class ProductsRepositoryImpl implements ProductsRepository {
         }
     }
 
-    // Permanent deletion is kept for maintenance, not regular store operations.
     @Override
     public boolean deleteById(int id) {
         return updateFlag("DELETE FROM products WHERE product_id = ?", id);
@@ -166,6 +167,7 @@ public class ProductsRepositoryImpl implements ProductsRepository {
         }
     }
 
+    // Converts one database row to a product object.
     private Products mapRow(ResultSet rs) throws SQLException {
         return new Products(rs.getInt("product_id"), rs.getString("name"),
                 rs.getString("description"), rs.getInt("category_id"),

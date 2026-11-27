@@ -6,8 +6,10 @@ import java.util.List;
 
 public final class SaleTotals {
     private static final BigDecimal MAX = new BigDecimal("9999999999.99");
+
     private SaleTotals() {}
 
+    // Validates and normalizes a monetary amount.
     public static BigDecimal money(BigDecimal amount) {
         if (amount == null) throw new IllegalArgumentException("Money amount is required");
         if (amount.signum() < 0 || amount.compareTo(MAX) > 0)
@@ -16,11 +18,13 @@ public final class SaleTotals {
         catch (ArithmeticException e) { throw new IllegalArgumentException("Only two decimal places allowed", e); }
     }
 
+    // Calculates the total for one sale item.
     public static BigDecimal subtotal(int quantity, BigDecimal unitPrice) {
         if (quantity <= 0) throw new IllegalArgumentException("Quantity must be positive");
         return money(money(unitPrice).multiply(BigDecimal.valueOf(quantity)));
     }
 
+    // Calculates the combined sale total.
     public static BigDecimal total(List<SaleItem> items) {
         if (items == null || items.isEmpty()) throw new IllegalArgumentException("Cart cannot be empty");
         BigDecimal sum = BigDecimal.ZERO.setScale(2);
@@ -32,6 +36,7 @@ public final class SaleTotals {
         return sum;
     }
 
+    // Calculates the change owed after payment.
     public static BigDecimal change(BigDecimal cash, BigDecimal total) {
         BigDecimal received = money(cash);
         BigDecimal due = money(total);

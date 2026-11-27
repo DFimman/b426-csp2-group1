@@ -14,6 +14,7 @@ public class Product_VariantServiceImpl implements Product_VariantService {
     private final ProductsRepository productsRepository;
     private final CategoriesRepository categoriesRepository;
 
+    // Initializes Product_VariantServiceImpl with its required dependencies.
     public Product_VariantServiceImpl(Product_VariantRepository variantRepository,
                                       ProductsRepository productsRepository,
                                       CategoriesRepository categoriesRepository) {
@@ -22,6 +23,8 @@ public class Product_VariantServiceImpl implements Product_VariantService {
         this.categoriesRepository = categoriesRepository;
     }
 
+
+    // Checks that the product and category are active.
     private boolean isUsableParent(int productId) {
         Products product = productsRepository.findById(productId);
         if (product == null) {
@@ -44,6 +47,7 @@ public class Product_VariantServiceImpl implements Product_VariantService {
         return true;
     }
 
+    // Validates the provided variant fields.
     private String validateFields(int productId, String sku, String size, String color,
                                   double unitPrice, int stockQuantity, int reorderLevel) {
         if (productId <= 0) return "Product ID must be greater than 0.";
@@ -56,10 +60,12 @@ public class Product_VariantServiceImpl implements Product_VariantService {
         return null;
     }
 
+
     @Override
     public List<Product_Variant> getAllActiveVariants() {
         return variantRepository.findAllActive();
     }
+
 
     @Override
     public List<Product_Variant> getAllArchivedVariants() {
@@ -126,7 +132,6 @@ public class Product_VariantServiceImpl implements Product_VariantService {
         return variantRepository.update(variant);
     }
 
-    // Kept for maintenance. Do not permanently delete variants during normal operation.
     @Override
     public boolean deleteVariant(int variant_id) {
         if (variant_id <= 0) {
@@ -182,6 +187,7 @@ public class Product_VariantServiceImpl implements Product_VariantService {
         return variantRepository.findById(variant_id);
     }
 
+    // Finds a product variant by SKU.
     @Override
     public Product_Variant findBySku(String sku) {
         if (sku == null || sku.isBlank()) {
@@ -191,6 +197,7 @@ public class Product_VariantServiceImpl implements Product_VariantService {
         return variantRepository.findBySku(sku.trim());
     }
 
+    // Lists the variants belonging to a product.
     @Override
     public List<Product_Variant> getVariantsByProduct(int product_id) {
         if (product_id <= 0) {
@@ -200,11 +207,13 @@ public class Product_VariantServiceImpl implements Product_VariantService {
         return variantRepository.findByProductId(product_id);
     }
 
+    // Lists variants at or below reorder level.
     @Override
     public List<Product_Variant> getLowStockVariants() {
         return variantRepository.findLowStock();
     }
 
+    // Rejects stock edits that bypass Stock Movements.
     @Override
     public boolean updateStock(int variant_id, int stock_quantity) {
         // Keep this old method for compatibility, but block unaudited stock changes.

@@ -20,6 +20,7 @@ public class Product_VariantView {
         this.scanner = scanner;
     }
 
+    // Displays and handles the product variant menu.
     public void handleMenu() {
         while (true) {
             clearScreen();
@@ -45,12 +46,14 @@ public class Product_VariantView {
         }
     }
 
+    // Displays the available product variants.
     private void displayCatalog() {
         clearScreen();
         List<Product_Variant> variants = variantService.getAllActiveVariants();
         printCatalog(variants, "Available Items");
     }
 
+    // Prompts the user to search.
     private void promptSearch() {
         clearScreen();
         System.out.println("\n----- Search Items -----");
@@ -71,6 +74,7 @@ public class Product_VariantView {
         printCatalog(matches, "Search Results");
     }
 
+    // Prints product variants in a formatted table.
     private void printCatalog(List<Product_Variant> variants, String title) {
         System.out.println("\n----- " + title + " -----");
         System.out.printf("%-8s| %-8s| %-12s| %-10s| %-14s%n", "Product", "Size", "Color", "Price", "Availability");
@@ -90,6 +94,7 @@ public class Product_VariantView {
         }
     }
 
+    // Repeatedly requests a valid whole number.
     private Integer promptForInt(String prompt) {
         while (true) {
             String input = getStringInput(prompt);
@@ -105,6 +110,7 @@ public class Product_VariantView {
         }
     }
 
+    // Requests nonblank console text.
     private String getStringInput(String prompt) {
         while (true) {
             System.out.print(prompt);

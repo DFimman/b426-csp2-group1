@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class SaleItemRepositoryImpl implements SaleItemRepository {
+
+    // Inserts a new sale item record.
     @Override
     public int insert(Connection connection, SaleItem item) throws SQLException {
         String sql = "INSERT INTO sale_items (sale_id, variant_id, quantity, unit_price, subtotal) VALUES (?, ?, ?, ?, ?)";
@@ -22,6 +24,7 @@ public class SaleItemRepositoryImpl implements SaleItemRepository {
         }
     }
 
+    // Finds sale items belonging to a sale.
     @Override
     public List<SaleItem> findBySaleId(Connection connection, int saleId) throws SQLException {
         List<SaleItem> result = new ArrayList<>();

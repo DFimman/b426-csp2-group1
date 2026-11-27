@@ -17,6 +17,7 @@ public class Product_VariantRepositoryImpl implements Product_VariantRepository 
         }
     }
 
+    // Converts one database row to a product variant object.
     private Product_Variant mapRow(ResultSet rs) throws SQLException {
         Product_Variant variant = new Product_Variant();
         variant.setVariant_id(rs.getInt("variant_id"));
@@ -31,6 +32,7 @@ public class Product_VariantRepositoryImpl implements Product_VariantRepository 
         return variant;
     }
 
+    // Executes a query and returns matching records.
     private List<Product_Variant> queryList(String sql, Object param) {
         List<Product_Variant> variants = new ArrayList<>();
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
@@ -44,6 +46,7 @@ public class Product_VariantRepositoryImpl implements Product_VariantRepository 
         return variants;
     }
 
+    // Executes a query and returns the first matching record.
     private Product_Variant queryOne(String sql, Object param) {
         List<Product_Variant> results = queryList(sql, param);
         return results.isEmpty() ? null : results.get(0);
@@ -58,6 +61,7 @@ public class Product_VariantRepositoryImpl implements Product_VariantRepository 
             return false;
         }
     }
+
 
     @Override
     public Product_Variant findById(int variant_id) {
@@ -88,6 +92,7 @@ public class Product_VariantRepositoryImpl implements Product_VariantRepository 
         return queryList("SELECT * FROM product_variants WHERE is_archived = 1", null);
     }
 
+    // Finds variants at or below reorder level.
     @Override
     public List<Product_Variant> findLowStock() {
         return queryList("SELECT v.* FROM product_variants v "
@@ -97,6 +102,7 @@ public class Product_VariantRepositoryImpl implements Product_VariantRepository 
                 + "AND v.is_archived = 0 AND p.is_archived = 0 AND c.is_archived = 0", null);
     }
 
+    // Saves a product variant record to the database.
     @Override
     public boolean save(Product_Variant variant) {
         String sql = "INSERT INTO product_variants "
@@ -142,6 +148,7 @@ public class Product_VariantRepositoryImpl implements Product_VariantRepository 
         }
     }
 
+    // Rejects stock edits that bypass Stock Movements.
     @Override
     public boolean updateStock(int variant_id, int stock_quantity) {
         // Kept for interface compatibility. All stock changes need a movement record.
@@ -149,7 +156,6 @@ public class Product_VariantRepositoryImpl implements Product_VariantRepository 
         return false;
     }
 
-    // Permanent deletion stays in the repository but is not a normal store operation.
     @Override
     public boolean deleteById(int variant_id) {
         return updateById("DELETE FROM product_variants WHERE variant_id = ?", variant_id);
@@ -165,6 +171,7 @@ public class Product_VariantRepositoryImpl implements Product_VariantRepository 
         return updateById("UPDATE product_variants SET is_archived = 0 WHERE variant_id = ?", variant_id);
     }
 
+    // Searches product variants by SKU.
     @Override
     public List<Product_Variant> searchBySku(String keyword) {
         return queryList("SELECT * FROM product_variants WHERE sku LIKE ?", "%" + keyword + "%");

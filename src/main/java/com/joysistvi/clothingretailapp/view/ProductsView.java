@@ -17,6 +17,7 @@ public class ProductsView {
         this.input = new ConsoleInput(scanner);
     }
 
+    // Displays and handles the product menu.
     public void handleMenu() {
         while (true) {
             ConsoleOutput.clearScreen();
@@ -91,11 +92,13 @@ public class ProductsView {
         printProductTable("\n----- Search Results -----", productsService.searchByName(keyword));
     }
 
+    // Prompts the user to products by category.
     public void promptProductsByCategory() {
         int categoryId = input.positive("Enter category ID: ");
         printProductTable("\n----- Active Products By Category -----",
                 productsService.findActiveByCategory(categoryId));
     }
+
 
     public void promptArchiveProduct() {
         displayAllProducts();
@@ -111,7 +114,6 @@ public class ProductsView {
         System.out.println(restored ? "Product restored successfully!" : "No product restored.");
     }
 
-    // Kept for maintenance only. Regular store operations use Archive and Restore.
     public void promptDeleteProduct() {
         int id = input.positive("Enter product ID to permanently delete: ");
         String confirm = input.text("Type YES to confirm permanent deletion: ");

@@ -6,6 +6,7 @@ import java.sql.*;
 public class TransactionGuardRepository {
     public record ActiveVariant(BigDecimal unitPrice, int stockQuantity) {}
 
+    // Reads the role of an active user.
     public String activeRole(Connection connection, int userId) throws SQLException {
         String sql = "SELECT role FROM users WHERE user_id = ? AND is_archived = 0";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {

@@ -18,7 +18,6 @@ public class SaleView {
         this.input = new ConsoleInput(scanner); this.scanner = scanner;
     }
 
-    // The authenticated user ID must come from the login session, never from this menu.
     public void handleMenu(int authenticatedUserId) {
         while (true) {
             System.out.println("\n=== SALES / CHECKOUT ===");
@@ -49,6 +48,7 @@ public class SaleView {
         }
     }
 
+    // Validates and completes a cash sale transaction.
     private void checkout(int userId) throws SQLException {
         Map<Integer, Integer> cart = new LinkedHashMap<>();
         System.out.println("Enter each variant's ID and quantity (0 to finish).");
@@ -67,6 +67,7 @@ public class SaleView {
         catch (RuntimeException e) { System.out.println("Sale saved as #" + receipt.getSale().getSaleId() + ". Reprint receipt later."); }
     }
 
+    // Lists the relevant transaction or movement history.
     private void history(int userId) throws SQLException {
         var records = sales.history(userId);
         if (records.isEmpty()) { System.out.println("No completed sales found."); return; }
@@ -77,11 +78,13 @@ public class SaleView {
         }
     }
 
+    // Reprints a previously saved sale receipt.
     private void reprint(int userId) throws SQLException {
         int saleId = input.positive("Sale ID: ");
         displayReceipt(sales.receipt(userId, saleId));
     }
 
+    // Displays the completed sale receipt.
     private void displayReceipt(SaleReceipt receipt) {
         Sale sale = receipt.getSale();
         System.out.println("\n----- CIMS-POS RECEIPT -----");

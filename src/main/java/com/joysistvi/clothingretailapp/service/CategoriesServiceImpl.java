@@ -13,6 +13,7 @@ public class CategoriesServiceImpl implements CategoriesService {
     private final CategoriesRepository categoriesRepository;
     private final ProductsRepository productsRepository;
 
+    // Initializes CategoriesServiceImpl with its required dependencies.
     public CategoriesServiceImpl(CategoriesRepository categoriesRepository, ProductsRepository productsRepository) {
         this.categoriesRepository = categoriesRepository;
         this.productsRepository = productsRepository;
@@ -35,13 +36,16 @@ public class CategoriesServiceImpl implements CategoriesService {
         return isValidCategory(category) && categoriesRepository.save(category);
     }
 
+    // Updates a category record in the database.
     @Override
     public boolean update(Categories category) {
         if (!isValidCategory(category)) return false;
+
         if (category.getId() <= 0) {
             System.out.println("Validation Error: Category ID must be greater than 0.");
             return false;
         }
+
         if (categoriesRepository.findById(category.getId()) == null) {
             System.out.println("Validation Error: Category with ID " + category.getId() + " was not found.");
             return false;
@@ -49,7 +53,6 @@ public class CategoriesServiceImpl implements CategoriesService {
         return categoriesRepository.update(category);
     }
 
-    // Permanent deletion is kept only for maintenance; use archive during normal operation.
     @Override
     public boolean deleteById(int id) {
         if (id <= 0) {
@@ -123,6 +126,7 @@ public class CategoriesServiceImpl implements CategoriesService {
         return categoriesRepository.findById(id);
     }
 
+    // Validates a category before saving changes.
     private boolean isValidCategory(Categories category) {
         if (category == null) {
             System.out.println("Validation Error: Category cannot be null.");
@@ -147,6 +151,7 @@ public class CategoriesServiceImpl implements CategoriesService {
         return true;
     }
 
+    // Checks whether a category still has active products.
     private boolean hasActiveProducts(int categoryId) {
         int total = productsRepository.countActiveByCategory(categoryId);
         if (total > 0) {

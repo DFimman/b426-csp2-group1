@@ -1,6 +1,7 @@
 package com.joysistvi.clothingretailapp.view;
 
 public final class ConsoleOutput {
+
     private ConsoleOutput() {}
 
     // Clears the console in terminals with ANSI support
@@ -20,7 +21,7 @@ public final class ConsoleOutput {
         }
     }
 
-    // Shorten long strings only for display (never alter stored data)
+    // Shorten long strings only for display
     public static String truncate(String text, int maxLength) {
         if (text == null) return "";
         if (text.length() <= maxLength) return text;

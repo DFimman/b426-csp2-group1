@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class StockMovementRepositoryImpl implements StockMovementRepository {
+    // Inserts a new stock movement record.
     @Override
     public int insert(Connection connection, StockMovement movement) throws SQLException {
         String sql = "INSERT INTO stock_movements (variant_id, user_id, sale_id, movement_type, quantity_change, reason) "
@@ -33,6 +34,7 @@ public class StockMovementRepositoryImpl implements StockMovementRepository {
         }
     }
 
+    // Converts one database row to a stock movement object.
     private StockMovement mapRow(ResultSet rs) throws SQLException {
         int saleId = rs.getInt("sale_id");
         Integer linkedSale = rs.wasNull() ? null : saleId;
@@ -42,6 +44,7 @@ public class StockMovementRepositoryImpl implements StockMovementRepository {
                 rs.getTimestamp("created_at").toLocalDateTime());
     }
 
+    // Retrieves records for the specified variant.
     @Override
     public List<StockMovement> findByVariantId(Connection connection, int variantId) throws SQLException {
         List<StockMovement> result = new ArrayList<>();

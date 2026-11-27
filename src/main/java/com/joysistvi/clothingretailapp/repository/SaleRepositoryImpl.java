@@ -6,6 +6,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class SaleRepositoryImpl implements SaleRepository {
+
+    // Inserts a new sale record.
     @Override
     public int insert(Connection connection, int userId, BigDecimal total, BigDecimal cash, BigDecimal change) throws SQLException {
         String sql = "INSERT INTO sales (user_id, total_amount, cash_received, change_amount, status) "
@@ -23,6 +25,7 @@ public class SaleRepositoryImpl implements SaleRepository {
         }
     }
 
+
     @Override
     public Sale findById(Connection connection, int saleId) throws SQLException {
         try (PreparedStatement ps = connection.prepareStatement("SELECT * FROM sales WHERE sale_id = ?")) {
@@ -32,6 +35,7 @@ public class SaleRepositoryImpl implements SaleRepository {
             }
         }
     }
+
 
     @Override
     public List<Sale> findAll(Connection connection, Integer userIdFilter) throws SQLException {
@@ -47,6 +51,7 @@ public class SaleRepositoryImpl implements SaleRepository {
         return result;
     }
 
+    // Converts one database row to a sale object.
     private Sale mapRow(ResultSet rs) throws SQLException {
         Timestamp timestamp = rs.getTimestamp("sale_datetime");
         return new Sale(rs.getInt("sale_id"), rs.getInt("user_id"), timestamp.toLocalDateTime(),

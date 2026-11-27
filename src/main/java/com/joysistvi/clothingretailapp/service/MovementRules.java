@@ -1,8 +1,10 @@
 package com.joysistvi.clothingretailapp.service;
 
 public final class MovementRules {
+
     private MovementRules() {}
 
+    // Validates a manual stock movement.
     public static void validateManual(String type, int delta, String reason) {
         if (!"RESTOCK".equals(type) && !"ADJUSTMENT".equals(type))
             throw new IllegalArgumentException("Manual movements must be RESTOCK or ADJUSTMENT");
@@ -12,6 +14,7 @@ public final class MovementRules {
             throw new IllegalArgumentException("Reason is required (up to 255 characters)");
     }
 
+    // Calculates the resulting stock after a movement.
     public static int nextStock(int current, int delta) {
         int result;
         try { result = Math.addExact(current, delta); }

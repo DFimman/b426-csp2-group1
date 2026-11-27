@@ -33,6 +33,7 @@ public class ProductsServiceImpl implements ProductsService {
         return products != null ? products : new ArrayList<>();
     }
 
+    // Lists active products in the specified category.
     @Override
     public List<Products> findActiveByCategory(int categoryId) {
         if (categoryId <= 0) {
@@ -43,6 +44,7 @@ public class ProductsServiceImpl implements ProductsService {
         return products != null ? products : new ArrayList<>();
     }
 
+    // Counts active products in the specified category.
     @Override
     public int countActiveByCategory(int categoryId) {
         if (categoryId <= 0) {
@@ -71,7 +73,6 @@ public class ProductsServiceImpl implements ProductsService {
         return productsRepository.update(product);
     }
 
-    // Permanent deletion is kept only for maintenance; use archive during normal operation.
     @Override
     public boolean deleteById(int id) {
         if (id <= 0) {
@@ -143,6 +144,7 @@ public class ProductsServiceImpl implements ProductsService {
         return productsRepository.findById(id);
     }
 
+    // Validates a product before saving changes.
     private boolean isValidProduct(Products product) {
         if (product == null) {
             System.out.println("Validation Error: Product cannot be null.");
@@ -168,6 +170,7 @@ public class ProductsServiceImpl implements ProductsService {
         return true;
     }
 
+    // Checks that the parent category exists and is active.
     private boolean isUsableCategory(int categoryId) {
         if (categoryId <= 0) {
             System.out.println("Validation Error: Category ID must be greater than 0.");

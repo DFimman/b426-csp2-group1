@@ -14,6 +14,7 @@ public class StockMovementView {
         this.input = new ConsoleInput(scanner);
     }
 
+    // Displays and handles the stock movement menu.
     public void handleMenu(int authenticatedAdminId) {
         while (true) {
             System.out.println("\n=== STOCK MOVEMENTS (ADMIN) ===");
@@ -43,6 +44,7 @@ public class StockMovementView {
         }
     }
 
+    // Prompts for and records a manual stock change.
     private void change(int adminId, String type) throws SQLException {
         int variantId = input.positive("Variant ID: ");
         int delta = "RESTOCK".equals(type) ? input.positive("Units to add: ") : input.integer("Signed change (+/-): ");
@@ -51,6 +53,7 @@ public class StockMovementView {
         System.out.println(type + " saved. Movement #" + movement.getMovementId());
     }
 
+    // Lists the relevant transaction or movement history.
     private void history(int adminId) throws SQLException {
         int variantId = input.positive("Variant ID: ");
         var records = service.history(adminId, variantId);
