@@ -14,6 +14,7 @@ public class UserView {
     private final UserService userService;
     private final Scanner scanner;
 
+    // Initializes UserView with its required dependencies.
     public UserView(UserService userService, Scanner scanner) {
         this.userService = userService;
         this.scanner = scanner;
@@ -23,14 +24,14 @@ public class UserView {
     public void handleMenu() {
         while (true) {
             clearScreen();
-            System.out.println("\n=== MANAGE USERS ===");
-            System.out.println("1. view All Users");
-            System.out.println("2. Create/Register User");
-            System.out.println("3. Update User");
-            System.out.println("4. Search User");
-            System.out.println("5. Archive User");
-            System.out.println("6. Restore User");
-            System.out.println("7. Delete User");
+            System.out.println("\n=== MANAGE CASHIER ACCOUNTS ===");
+            System.out.println("1. View Active Users");
+            System.out.println("2. Register Cashier Account");
+            System.out.println("3. Update Cashier Account");
+            System.out.println("4. Search Cashier Account");
+            System.out.println("5. Archive Cashier Account");
+            System.out.println("6. Restore Cashier Account");
+            System.out.println("7. View Archived Cashiers");
             System.out.println("0. Back");
 
             Integer choice = promptForInt("Choose an option: ");
@@ -45,7 +46,7 @@ public class UserView {
                 case 4 -> promptSearchUsers();
                 case 5 -> promptArchiveUser();
                 case 6 -> promptRestoreUser();
-                case 7 -> promptDeleteUser();
+                case 7 -> displayAllUsers(true);
                 case 0 -> {
                     return;
                 }
@@ -55,11 +56,12 @@ public class UserView {
         }
     }
 
-
+    // Displays all users records.
     public void displayAllUsers() {
         displayAllUsers(false);
     }
 
+    // Displays all users records.
     public void displayAllUsers(boolean isArchived) {
         clearScreen();
         List<User> users = isArchived ? userService.getAllArchivedUsers() : userService.getAllActiveUsers();
@@ -69,6 +71,7 @@ public class UserView {
     }
 
 
+    // Prompts the user to create user.
     public void promptCreateUser() {
         clearScreen();
         System.out.println("\n----- Create New User -----");
@@ -105,6 +108,7 @@ public class UserView {
     }
 
 
+    // Prompts the user to update user.
     public void promptUpdateUser() {
         clearScreen();
         System.out.println("\n----- Update User -----");
@@ -114,6 +118,10 @@ public class UserView {
         User existing = userService.findById(id);
         if (existing == null) {
             System.out.println("\nNo user found with ID " + id + ".");
+            return;
+        }
+        if (!"USER".equals(existing.getRole())) {
+            System.out.println("Validation Error: Only cashier accounts can be managed here.");
             return;
         }
         System.out.println("Current: " + existing.getUsername() + " | " + existing.getFull_name());
@@ -133,6 +141,7 @@ public class UserView {
         System.out.println(updated ? "\nUser updated successfully!" : "\nFailed to update user.");
     }
 
+    // Prompts the user to delete user.
     public void promptDeleteUser() {
         clearScreen();
         System.out.println("\n----- Delete User -----");
@@ -141,6 +150,7 @@ public class UserView {
             return;
         }
 
+        if (!isCashierAccount(id)) return;
         boolean deleted = userService.deleteUser(id);
 
         if (deleted) {
@@ -150,7 +160,7 @@ public class UserView {
         }
     }
 
-
+    // Prompts the user to archive user.
     public void promptArchiveUser() {
         clearScreen();
         System.out.println("\n----- Archive User -----");
@@ -159,6 +169,7 @@ public class UserView {
             return;
         }
 
+        if (!isCashierAccount(id)) return;
         boolean archived = userService.archiveUser(id);
 
         if (archived) {
@@ -168,14 +179,14 @@ public class UserView {
         }
     }
 
-
+    // Prompts the user to restore user.
     public void promptRestoreUser() {
         clearScreen();
         System.out.println("\n----- Restore User -----");
         List<User> users = userService.getAllArchivedUsers();
         printUsers(users, "Archived Users");
 
-        if (users == null || users.isEmpty()) {
+        if (users == null || users.stream().noneMatch(user -> "USER".equals(user.getRole()))) {
             return;
         }
 
@@ -184,6 +195,7 @@ public class UserView {
             return;
         }
 
+        if (!isCashierAccount(id)) return;
         boolean restored = userService.restoreUser(id);
 
         if (restored) {
@@ -193,6 +205,7 @@ public class UserView {
         }
     }
 
+    // Prompts the user to search users.
     public void promptSearchUsers() {
         clearScreen();
         System.out.println("\n----- Search Users -----");
@@ -205,7 +218,7 @@ public class UserView {
         printUsers(users, "Search Users");
     }
 
-
+    // Prompts the user to login user.
     public void promptLoginUser() {
         clearScreen();
         System.out.println("\n----- Login User -----");
@@ -228,6 +241,7 @@ public class UserView {
     }
 
 
+    // Repeatedly requests a valid whole number.
     private Integer promptForInt(String prompt) {
         while (true) {
             String input = getStringInput(prompt);
@@ -243,6 +257,7 @@ public class UserView {
         }
     }
 
+    // Requests nonblank console text.
     private String getStringInput(String prompt) {
         while (true) {
             System.out.print(prompt);
@@ -263,6 +278,7 @@ public class UserView {
         }
     }
 
+    // Requests a positive whole number.
     private Integer getIntInput(String prompt) {
         while (true) {
             String input = getStringInput(prompt);
@@ -284,16 +300,33 @@ public class UserView {
         }
     }
 
+    // Prevents account management operations from affecting an Admin account.
+    private boolean isCashierAccount(int id) {
+        User user = userService.findById(id);
+        if (user == null) {
+            System.out.println("Validation Error: Account was not found.");
+            return false;
+        }
+        if (!"USER".equals(user.getRole())) {
+            System.out.println("Validation Error: Only cashier accounts can be managed here.");
+            return false;
+        }
+        return true;
+    }
+
+    // Prints only Cashier accounts in the Admin's account management screen.
     private void printUsers(List<User> users, String title) {
         System.out.println("\n----- " + title + " -----");
         System.out.printf("%-4s| %-20s| %-28s| %-12s%n", "ID", "Username", "Full Name", "Role");
 
-        if (users == null || users.isEmpty()) {
-            System.out.println("No users found.");
+        List<User> cashiers = users == null ? List.of() : users.stream()
+                .filter(user -> "USER".equals(user.getRole())).toList();
+        if (cashiers.isEmpty()) {
+            System.out.println("No cashier accounts found.");
             return;
         }
 
-        for (User user : users) {
+        for (User user : cashiers) {
             System.out.printf("%-4d| %-20s| %-28s| %-12s%n",
                     user.getId(),
                     truncate(user.getUsername(), 20),
