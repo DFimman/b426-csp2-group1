@@ -1,11 +1,8 @@
-package com.joysistivi.clothingretailapp;
+package com.joysistvi.clothingretailapp;
 
-import com.joysistivi.clothingretailapp.config.DbConnection;
+import com.joysistvi.clothingretailapp.config.DbConnection;
 
 import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
 
 public class App {
     public static void main(String[] args) {

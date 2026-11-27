@@ -1,4 +1,4 @@
-package com.joysistivi.clothingretailapp.config;
+package com.joysistvi.clothingretailapp.config;
 
 import java.sql.DriverManager;
 import java.sql.SQLException;
