@@ -2,21 +2,24 @@ package com.joysistvi.clothingretailapp.view;
 
 import com.joysistvi.clothingretailapp.model.Categories;
 import com.joysistvi.clothingretailapp.service.CategoriesService;
-
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Scanner;
 
 public class CategoriesView {
     private final CategoriesService categoriesService;
     private final Scanner scanner;
+    private final ConsoleInput input;
 
     public CategoriesView(CategoriesService categoriesService, Scanner scanner) {
         this.categoriesService = categoriesService;
         this.scanner = scanner;
+        this.input = new ConsoleInput(scanner);
     }
 
     public void handleMenu() {
         while (true) {
+            ConsoleOutput.clearScreen();
             System.out.println("\n=== CATEGORIES MANAGEMENT ===");
             System.out.println("1. View All Active Categories");
             System.out.println("2. Create Category");
@@ -24,205 +27,103 @@ public class CategoriesView {
             System.out.println("4. Search Categories");
             System.out.println("5. Archive Category");
             System.out.println("6. Restore Category");
-            System.out.println("7. Delete Category");
             System.out.println("0. Back");
-
-            int choice = promptForInt("Choose an option: ");
-            switch (choice) {
-                case 1:
-                    displayAllCategories();
-                    break;
-                case 2:
-                    promptCreateCategory();
-                    break;
-                case 3:
-                    promptUpdateCategory();
-                    break;
-                case 4:
-                    promptSearchCategories();
-                    break;
-                case 5:
-                    promptArchiveCategory();
-                    break;
-                case 6:
-                    promptRestoreCategory();
-                    break;
-                case 7:
-                    promptDeleteCategory();
-                    break;
-                case 0:
-                    return;
-                default:
-                    System.out.println("Invalid option. Please try again.");
-                    break;
+            try {
+                int choice = input.integer("Choose an option: ");
+                switch (choice) {
+                    case 1 -> displayAllCategories();
+                    case 2 -> promptCreateCategory();
+                    case 3 -> promptUpdateCategory();
+                    case 4 -> promptSearchCategories();
+                    case 5 -> promptArchiveCategory();
+                    case 6 -> promptRestoreCategory();
+                    case 0 -> { return; }
+                    default -> System.out.println("Invalid option. Please try again.");
+                }
+                if (!ConsoleOutput.pause(scanner)) return;
+            } catch (NoSuchElementException | IllegalStateException e) {
+                return;
+            } catch (NumberFormatException e) {
+                System.out.println("Validation Error: Enter a valid whole number.");
+                if (!ConsoleOutput.pause(scanner)) return;
+            } catch (RuntimeException e) {
+                System.out.println("Operation failed: " + e.getMessage());
+                if (!ConsoleOutput.pause(scanner)) return;
             }
         }
     }
 
     public void displayAllCategories() {
-        printCategoryTable("\n----- Active Categories -----",
-                categoriesService.findAllActive(), "No active categories found.");
+        printCategoryTable("\n----- Active Categories -----", categoriesService.findAllActive());
     }
 
     public void promptCreateCategory() {
         System.out.println("\n=== CREATE Category ===");
-        System.out.print("Enter category name: ");
-        String name = scanner.nextLine();
-        System.out.print("Enter description (optional): ");
-        String description = scanner.nextLine();
-
+        String name = input.text("Enter category name: ");
+        String description = input.text("Enter description (optional): ");
         boolean created = categoriesService.save(new Categories(0, name, description, false));
-        if (created) {
-            System.out.println("Category '" + name.trim() + "' created successfully!");
-        } else {
-            System.out.println("Failed to create category.");
-        }
+        System.out.println(created ? "Category created successfully!" : "Failed to create category.");
     }
 
     public void promptUpdateCategory() {
-        System.out.println("\n=== UPDATE Category ===");
         displayAllCategories();
-        int id = promptForInt("Enter category ID to update: ");
-
+        int id = input.positive("Enter category ID to update: ");
         Categories current = categoriesService.findById(id);
         if (current == null) {
-            System.out.println("No category updated (check ID or input).");
+            System.out.println("Category not found.");
             return;
         }
-
-        System.out.print("Enter new name (Enter to keep '" + current.getName() + "'): ");
-        String name = scanner.nextLine();
-        System.out.print("Enter new description (Enter to keep current): ");
-        String description = scanner.nextLine();
-
-        if (name.trim().isEmpty()) {
-            name = current.getName();
-        }
-        if (description.trim().isEmpty()) {
-            description = current.getDescription();
-        }
-
+        String name = input.text("Enter new name (Enter to keep current): ");
+        String description = input.text("Enter new description (Enter to keep current): ");
+        if (name.isBlank()) name = current.getName();
+        if (description.isBlank()) description = current.getDescription();
         boolean updated = categoriesService.update(new Categories(id, name, description, current.isArchived()));
-        if (updated) {
-            System.out.println("Category ID " + id + " updated successfully!");
-        } else {
-            System.out.println("No category updated (check ID or input).");
-        }
+        System.out.println(updated ? "Category updated successfully!" : "No category updated.");
     }
 
     public void promptSearchCategories() {
-        System.out.println("\n=== SEARCH Categories ===");
-        System.out.print("Enter category name keyword: ");
-        String keyword = scanner.nextLine();
-
-        List<Categories> matches = categoriesService.searchByName(keyword);
-        printCategoryTable("\n----- Search Categories (Keyword: '" + keyword.trim() + "') -----",
-                matches, "No matching active categories found.");
+        String keyword = input.text("Enter category name keyword: ");
+        printCategoryTable("\n----- Search Results -----", categoriesService.searchByName(keyword));
     }
 
     public void promptArchiveCategory() {
-        System.out.println("\n=== ARCHIVE Category ===");
         displayAllCategories();
-        int id = promptForInt("Enter category ID to archive: ");
-
+        int id = input.positive("Enter category ID to archive: ");
         boolean archived = categoriesService.archiveById(id);
-        if (archived) {
-            System.out.println("Category ID " + id + " archived successfully!");
-        } else {
-            System.out.println("No category archived (check ID or input).");
-        }
+        System.out.println(archived ? "Category archived successfully!" : "No category archived.");
     }
 
     public void promptRestoreCategory() {
-        System.out.println("\n=== RESTORE Category ===");
-        List<Categories> archivedCategories = categoriesService.findAllArchived();
-        printCategoryTable("\n----- Archived Categories -----", archivedCategories, "No archived categories found.");
-
-        if (archivedCategories == null || archivedCategories.isEmpty()) {
-            return;
-        }
-
-        int id = promptForInt("Enter category ID to restore: ");
+        printCategoryTable("\n----- Archived Categories -----", categoriesService.findAllArchived());
+        int id = input.positive("Enter category ID to restore: ");
         boolean restored = categoriesService.restoreById(id);
-        if (restored) {
-            System.out.println("Category ID " + id + " restored successfully!");
-        } else {
-            System.out.println("No archived category restored (check ID or input).");
-        }
+        System.out.println(restored ? "Category restored successfully!" : "No category restored.");
     }
 
+    // Kept for maintenance only. Regular store operations use Archive and Restore.
     public void promptDeleteCategory() {
-        System.out.println("\n=== DELETE Category ===");
-        displayAllCategories();
-        int id = promptForInt("Enter category ID to permanently delete: ");
-
-        System.out.print("This cannot be undone. Type YES to confirm: ");
-        String confirm = scanner.nextLine().trim();
-        if (!confirm.equals("YES")) {
+        int id = input.positive("Enter category ID to permanently delete: ");
+        String confirm = input.text("Type YES to confirm permanent deletion: ");
+        if (!"YES".equals(confirm)) {
             System.out.println("Delete cancelled.");
             return;
         }
-
         boolean deleted = categoriesService.deleteById(id);
-        if (deleted) {
-            System.out.println("Category ID " + id + " deleted successfully!");
-        } else {
-            System.out.println("No category deleted (check ID or input).");
-        }
+        System.out.println(deleted ? "Category deleted." : "Category could not be deleted.");
     }
 
-    private void printCategoryTable(String header, List<Categories> categories, String emptyMessage) {
+    private void printCategoryTable(String title, List<Categories> categories) {
         String border = "+------+----------------------+------------------------------+";
-
-        System.out.println("\n" + header);
+        System.out.println(title);
         System.out.println(border);
         System.out.printf("| %-4s | %-20s | %-28s |%n", "ID", "Name", "Description");
         System.out.println(border);
-
-        if (categories == null || categories.isEmpty()) {
-            String message = (emptyMessage != null && !emptyMessage.isEmpty())
-                    ? emptyMessage
-                    : "No categories found.";
-            System.out.printf("| %-58s |%n", truncate(message, 58));
-            System.out.println(border);
-            return;
+        if (categories == null || categories.isEmpty()) System.out.println("No categories found.");
+        else for (Categories category : categories) {
+            System.out.printf("| %-4d | %-20s | %-28s |%n", category.getId(),
+                    ConsoleOutput.truncate(category.getName(), 20),
+                    ConsoleOutput.truncate(category.getDescription(), 28));
         }
-
-        for (Categories category : categories) {
-            String name = category.getName() != null ? category.getName() : "";
-            String description = category.getDescription() != null ? category.getDescription() : "";
-
-            System.out.printf("| %-4d | %-20s | %-28s |%n",
-                    category.getId(),
-                    truncate(name, 20),
-                    truncate(description, 28));
-        }
-
         System.out.println(border);
-    }
-
-    private String truncate(String text, int maxLength) {
-        if (text == null) {
-            return "";
-        }
-        if (text.length() <= maxLength) {
-            return text;
-        }
-        if (maxLength <= 3) {
-            return text.substring(0, maxLength);
-        }
-        return text.substring(0, maxLength - 3) + "...";
-    }
-
-    private int promptForInt(String promptMessage) {
-        while (true) {
-            System.out.print(promptMessage);
-            String input = scanner.nextLine().trim();
-            try {
-                return Integer.parseInt(input);
-            } catch (NumberFormatException e) {
-                System.out.println("Invalid input. Please enter a valid number.");
-            }
-        }
     }
 }
