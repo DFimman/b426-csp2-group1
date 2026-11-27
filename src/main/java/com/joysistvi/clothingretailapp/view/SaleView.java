@@ -36,8 +36,16 @@ public class SaleView {
                     default -> System.out.println("Invalid option.");
                 }
                 if (!ConsoleOutput.pause(scanner)) return;
-            } catch (java.util.NoSuchElementException e) { return; }
-              catch (SQLException | RuntimeException e) { System.out.println("Operation failed: " + e.getMessage()); }
+                continue;
+            } catch (java.util.NoSuchElementException e) {
+                return;
+            } catch (SQLException e) {
+                System.out.println("Database Error: " + e.getMessage());
+            } catch (RuntimeException e) {
+                System.out.println("Operation failed: " + e.getMessage());
+            }
+
+            if (!ConsoleOutput.pause(scanner)) return;
         }
     }
 
