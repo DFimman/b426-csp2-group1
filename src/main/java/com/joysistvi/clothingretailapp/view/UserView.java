@@ -25,7 +25,7 @@ public class UserView {
         while (true) {
             clearScreen();
             System.out.println("\n=== MANAGE CASHIER ACCOUNTS ===");
-            System.out.println("1. View Active Users");
+            System.out.println("1. View Active Cashiers");
             System.out.println("2. Register Cashier Account");
             System.out.println("3. Update Cashier Account");
             System.out.println("4. Search Cashier Account");
@@ -66,7 +66,7 @@ public class UserView {
         clearScreen();
         List<User> users = isArchived ? userService.getAllArchivedUsers() : userService.getAllActiveUsers();
 
-        String title = isArchived ? "Archived Users" : "Users";
+        String title = isArchived ? "Archived Cashiers" : "Active Cashiers";
         printUsers(users, title);
     }
 
@@ -184,7 +184,7 @@ public class UserView {
         clearScreen();
         System.out.println("\n----- Restore User -----");
         List<User> users = userService.getAllArchivedUsers();
-        printUsers(users, "Archived Users");
+        printUsers(users, "Archived Cashiers");
 
         if (users == null || users.stream().noneMatch(user -> "USER".equals(user.getRole()))) {
             return;
@@ -317,7 +317,7 @@ public class UserView {
     // Prints only Cashier accounts in the Admin's account management screen.
     private void printUsers(List<User> users, String title) {
         System.out.println("\n----- " + title + " -----");
-        System.out.printf("%-4s| %-20s| %-28s| %-12s%n", "ID", "Username", "Full Name", "Role");
+        System.out.printf("%-4s| %-20s| %-28s%n", "ID", "Username", "Full Name");
 
         List<User> cashiers = users == null ? List.of() : users.stream()
                 .filter(user -> "USER".equals(user.getRole())).toList();
@@ -327,11 +327,10 @@ public class UserView {
         }
 
         for (User user : cashiers) {
-            System.out.printf("%-4d| %-20s| %-28s| %-12s%n",
+            System.out.printf("%-4d| %-20s| %-28s%n",
                     user.getId(),
                     truncate(user.getUsername(), 20),
-                    truncate(user.getFull_name(), 28),
-                    truncate(user.getRole(), 12));
+                    truncate(user.getFull_name(), 28));
         }
     }
 }

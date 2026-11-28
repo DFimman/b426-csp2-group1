@@ -33,7 +33,7 @@ public class App {
         CategoriesService categoriesService = new CategoriesServiceImpl(categoriesRepository, productsRepository);
         ProductsService productsService = new ProductsServiceImpl(productsRepository, categoriesRepository);
         categoriesView = new CategoriesView(categoriesService, scanner);
-        productsView = new ProductsView(productsService, scanner);
+        productsView = new ProductsView(productsService, categoriesService, scanner);
 
         Product_VariantRepository variantRepository = new Product_VariantRepositoryImpl(dbConnection);
         Product_VariantService variantService = new Product_VariantServiceImpl(

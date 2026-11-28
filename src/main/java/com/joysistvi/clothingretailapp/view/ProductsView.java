@@ -1,6 +1,8 @@
 package com.joysistvi.clothingretailapp.view;
 
+import com.joysistvi.clothingretailapp.model.Categories;
 import com.joysistvi.clothingretailapp.model.Products;
+import com.joysistvi.clothingretailapp.service.CategoriesService;
 import com.joysistvi.clothingretailapp.service.ProductsService;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -8,11 +10,13 @@ import java.util.Scanner;
 
 public class ProductsView {
     private final ProductsService productsService;
+    private final CategoriesService categoriesService;
     private final Scanner scanner;
     private final ConsoleInput input;
 
-    public ProductsView(ProductsService productsService, Scanner scanner) {
+    public ProductsView(ProductsService productsService, CategoriesService categoriesService, Scanner scanner) {
         this.productsService = productsService;
+        this.categoriesService = categoriesService;
         this.scanner = scanner;
         this.input = new ConsoleInput(scanner);
     }
@@ -61,6 +65,7 @@ public class ProductsView {
     }
 
     public void promptCreateProduct() {
+        if (!displayActiveCategories()) return;
         int categoryId = input.positive("Enter category ID: ");
         String name = input.text("Enter product name: ");
         String description = input.text("Enter description (optional): ");
@@ -94,6 +99,7 @@ public class ProductsView {
 
     // Prompts the user to products by category.
     public void promptProductsByCategory() {
+        if (!displayActiveCategories()) return;
         int categoryId = input.positive("Enter category ID: ");
         printProductTable("\n----- Active Products By Category -----",
                 productsService.findActiveByCategory(categoryId));
@@ -123,6 +129,29 @@ public class ProductsView {
         }
         boolean deleted = productsService.deleteById(id);
         System.out.println(deleted ? "Product deleted." : "Product could not be deleted.");
+    }
+
+    // Displays available categories before asking for a category ID.
+    private boolean displayActiveCategories() {
+        List<Categories> categories = categoriesService.findAllActive();
+        String border = "+------+----------------------+";
+        System.out.println("\n----- Active Categories -----");
+        System.out.println(border);
+        System.out.printf("| %-4s | %-20s |%n", "ID", "Name");
+        System.out.println(border);
+
+        if (categories == null || categories.isEmpty()) {
+            System.out.println("No active categories available.");
+            System.out.println(border);
+            return false;
+        }
+
+        for (Categories category : categories) {
+            System.out.printf("| %-4d | %-20s |%n", category.getId(),
+                    ConsoleOutput.truncate(category.getName(), 20));
+        }
+        System.out.println(border);
+        return true;
     }
 
     private void printProductTable(String title, List<Products> products) {
