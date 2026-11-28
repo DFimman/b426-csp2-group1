@@ -2,6 +2,8 @@ package com.joysistvi.clothingretailapp.view;
 
 import com.joysistvi.clothingretailapp.model.Product_Variant;
 import com.joysistvi.clothingretailapp.service.Product_VariantService;
+import com.joysistvi.clothingretailapp.service.ProductsService;
+import com.joysistvi.clothingretailapp.model.Products;
 
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -9,12 +11,19 @@ import java.util.Scanner;
 
 public class ProductVariantAdminView {
     private final Product_VariantService service;
+    private final ProductsService products;
     private final ConsoleInput input;
     private final Scanner scanner;
 
     // Uses the existing product variant service for Admin catalog operations.
     public ProductVariantAdminView(Product_VariantService service, Scanner scanner) {
+        this(service, null, scanner);
+    }
+
+    // Resolves product names when printing active and archived variants.
+    public ProductVariantAdminView(Product_VariantService service, ProductsService products, Scanner scanner) {
         this.service = service;
+        this.products = products;
         this.scanner = scanner;
         this.input = new ConsoleInput(scanner);
     }
@@ -147,18 +156,26 @@ public class ProductVariantAdminView {
     // Shows variant IDs and SKUs needed during checkout and restocking.
     private void displayTable(List<Product_Variant> variants, String title) {
         System.out.println("\n----- " + title + " -----");
-        System.out.printf("%-7s %-14s %-8s %-8s %-12s %-10s %-8s %-8s%n",
-                "ID", "SKU", "Product", "Size", "Color", "Price", "Stock", "Reorder");
+        System.out.printf("%-7s %-14s %-20s %-8s %-12s %-10s %-8s %-8s%n",
+                "ID", "SKU", "Product Name", "Size", "Color", "Price", "Stock", "Reorder");
         if (variants == null || variants.isEmpty()) {
             System.out.println("No variants found.");
             return;
         }
         for (Product_Variant variant : variants) {
-            System.out.printf("%-7d %-14s %-8d %-8s %-12s %-10.2f %-8d %-8d%n",
+            System.out.printf("%-7d %-14s %-20s %-8s %-12s %-10.2f %-8d %-8d%n",
                     variant.getVariant_id(), ConsoleOutput.truncate(variant.getSku(), 14),
-                    variant.getProduct_id(), ConsoleOutput.truncate(variant.getSize(), 8),
+                    ConsoleOutput.truncate(productName(variant.getProduct_id()), 20),
+                    ConsoleOutput.truncate(variant.getSize(), 8),
                     ConsoleOutput.truncate(variant.getColor(), 12), variant.getUnit_price(),
                     variant.getStock_quantity(), variant.getReorder_level());
         }
+    }
+
+    // Gets a product name even when displaying an archived variant.
+    private String productName(int productId) {
+        if (products == null) return "Product #" + productId;
+        Products product = products.findById(productId);
+        return product == null ? "Product #" + productId : product.getName();
     }
 }

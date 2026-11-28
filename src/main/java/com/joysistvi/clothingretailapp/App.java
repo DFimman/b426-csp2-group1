@@ -39,7 +39,7 @@ public class App {
         Product_VariantService variantService = new Product_VariantServiceImpl(
                 variantRepository, productsRepository, categoriesRepository);
         productVariantView = new Product_VariantView(variantService, productsService, scanner);
-        variantAdminView = new ProductVariantAdminView(variantService, scanner);
+        variantAdminView = new ProductVariantAdminView(variantService, productsService, scanner);
 
         UserRepository userRepository = new UserRepositoryImpl(dbConnection);
         userService = new UserServiceImpl(userRepository);
