@@ -54,7 +54,7 @@ public class App {
         StockMovementService stockMovementService = new StockMovementServiceImpl(
                 dbConnection, stockMovementRepository, guardRepository);
         saleView = new SaleView(saleService, new SaleItemView(), scanner);
-        stockMovementView = new StockMovementView(stockMovementService, scanner);
+        stockMovementView = new StockMovementView(stockMovementService, variantService, scanner);
         reportsView = new SalesReportsView(saleService, variantService, productsService, scanner);
     }
 
@@ -218,12 +218,14 @@ public class App {
             System.out.println("\n===== INVENTORY MANAGEMENT =====");
             System.out.println("1. Restock / Adjust / Stock Movement History");
             System.out.println("2. View Low-Stock Alerts");
+            System.out.println("3. View Stocks");
             System.out.println("0. Back");
 
             int choice = readChoice();
             switch (choice) {
                 case 1 -> stockMovementView.handleMenu(adminId);
                 case 2 -> variantAdminView.displayLowStock();
+                case 3 -> stockMovementView.displayStocks();
                 case 0 -> { return; }
                 default -> {
                     System.out.println("Invalid option. Please try again.");
