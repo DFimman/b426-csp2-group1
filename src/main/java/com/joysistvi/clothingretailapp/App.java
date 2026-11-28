@@ -58,29 +58,10 @@ public class App {
         reportsView = new SalesReportsView(saleService, variantService, productsService, scanner);
     }
 
-    // Allows console navigation to be tested without opening a database connection.
-    App(Scanner scanner, UserService userService, UserView userView,
-        CategoriesView categoriesView, ProductsView productsView,
-        Product_VariantView productVariantView, ProductVariantAdminView variantAdminView,
-        SaleView saleView, StockMovementView stockMovementView, SalesReportsView reportsView) {
-        this.scanner = scanner;
-        this.input = new ConsoleInput(scanner);
-        this.userService = userService;
-        this.userView = userView;
-        this.categoriesView = categoriesView;
-        this.productsView = productsView;
-        this.productVariantView = productVariantView;
-        this.variantAdminView = variantAdminView;
-        this.saleView = saleView;
-        this.stockMovementView = stockMovementView;
-        this.reportsView = reportsView;
-    }
-
     // Starts the program and handles database initialization errors.
     public static void main(String[] args) {
-            App app = new App();
-            app.run();
-
+        App app = new App();
+        app.run();
     }
 
     // Keeps the application running until Exit is selected.
@@ -131,74 +112,74 @@ public class App {
 
     // Refreshes the logged-in user and displays the dashboard for their role.
     private void dashboard(User loggedIn) {
-        while (true) {
-            User current = userService.findById(loggedIn.getId());
-            if (current == null || current.isArchived() || !validRole(current.getRole())) {
-                System.out.println("Session ended: This account is no longer active.");
-                ConsoleOutput.pause(scanner);
-                return;
-            }
-            boolean admin = "ADMIN".equals(current.getRole());
+        // Do not carry an unfinished cart between different logged-in users.
+        saleView.clearPendingCart();
+        try {
+            while (true) {
+                User current = userService.findById(loggedIn.getId());
+                if (current == null || current.isArchived() || !validRole(current.getRole())) {
+                    System.out.println("Session ended: This account is no longer active.");
+                    ConsoleOutput.pause(scanner);
+                    return;
+                }
+                boolean admin = "ADMIN".equals(current.getRole());
 
-            ConsoleOutput.clearScreen();
-            System.out.println(admin ? "\n===== ADMIN DASHBOARD =====" : "\n===== CASHIER DASHBOARD =====");
-            System.out.println("Signed in as: " + current.getFull_name() + " (" + current.getRole() + ")");
-            if (admin) {
-                printAdminOptions();
-            } else {
-                printCashierOptions();
-            }
+                ConsoleOutput.clearScreen();
+                System.out.println(admin ? "\n===== ADMIN DASHBOARD =====" : "\n===== CASHIER DASHBOARD =====");
+                System.out.println("Signed in as: " + current.getFull_name() + " (" + current.getRole() + ")");
+                if (admin) {
+                    printAdminOptions();
+                } else {
+                    printCashierOptions();
+                }
 
-            int choice = readChoice();
-            if (choice == 0) {
-                System.out.println("Logged out successfully.");
-                return;
-            }
+                int choice = readChoice();
+                if (choice == 0) {
+                    System.out.println("Logged out successfully.");
+                    return;
+                }
 
-            if (admin) {
-                handleAdminChoice(choice, current.getId());
-            } else {
-                handleCashierChoice(choice, current.getId());
+                if (admin) {
+                    handleAdminChoice(choice, current.getId());
+                } else {
+                    handleCashierChoice(choice, current.getId());
+                }
             }
+        } finally {
+            saleView.clearPendingCart();
         }
     }
 
-    // Prints the functions available only to an Admin.
+    // Prints the main Admin operations without cluttering the dashboard.
     private void printAdminOptions() {
-        System.out.println("1. MANAGE CASHIER ACCOUNTS");
-        System.out.println("2. Manage Categories");
-        System.out.println("3. Manage Products");
-        System.out.println("4. Manage Product Variants");
-        System.out.println("5. Browse Catalog");
-        System.out.println("6. Process Sells");
-        System.out.println("7. Restock / Adjust / Stock Movement History");
-        System.out.println("8. View Low-Stock Alerts");
-        System.out.println("9. Sales Reports and Stock Analytics");
+        System.out.println("1. Manage Cashier Accounts");
+        System.out.println("2. Manage Product");
+        System.out.println("3. Browse Catalog");
+        System.out.println("4. Process Sales");
+        System.out.println("5. Inventory Management");
+        System.out.println("6. Sales Reports and Stock Analytics");
         System.out.println("0. Logout");
     }
 
-    // Prints the browsing and sales functions available to a Cashier.
+    // Displays separate cart, checkout, history and receipt options for Cashiers.
     private void printCashierOptions() {
         System.out.println("1. Browse Catalog");
-        System.out.println("2. Sales / Checkout / My Sales / Reprint Receipt");
+        System.out.println("2. Manage Cart");
+        System.out.println("3. Cash Checkout");
+        System.out.println("4. View My Sales");
+        System.out.println("5. Reprint Receipt");
         System.out.println("0. Logout");
     }
 
-    // Allows only an authenticated Admin to open the management menus.
+    // Routes Admins to their management and sales menus.
     private void handleAdminChoice(int choice, int adminId) {
         switch (choice) {
             case 1 -> userView.handleMenu();
-            case 2 -> categoriesView.handleMenu();
-            case 3 -> productsView.handleMenu();
-            case 4 -> variantAdminView.handleMenu();
-            case 5 -> productVariantView.handleMenu();
-            case 6 -> saleView.handleMenu(adminId);
-            case 7 -> stockMovementView.handleMenu(adminId);
-            case 8 -> {
-                variantAdminView.displayLowStock();
-                ConsoleOutput.pause(scanner);
-            }
-            case 9 -> reportsView.handleMenu(adminId);
+            case 2 -> manageProductMenu();
+            case 3 -> productVariantView.handleMenu();
+            case 4 -> saleView.handleMenu(adminId);
+            case 5 -> inventoryManagementMenu(adminId);
+            case 6 -> reportsView.handleMenu(adminId);
             default -> {
                 System.out.println("Invalid option. Please try again.");
                 ConsoleOutput.pause(scanner);
@@ -206,16 +187,63 @@ public class App {
         }
     }
 
-    // Limits Cashiers to browsing, checkout, and their own sales history.
+    // Groups Categories, Products and Product Variants into one Admin submenu.
+    private void manageProductMenu() {
+        while (true) {
+            ConsoleOutput.clearScreen();
+            System.out.println("\n===== MANAGE PRODUCT =====");
+            System.out.println("1. Manage Categories");
+            System.out.println("2. Manage Products");
+            System.out.println("3. Manage Product Variants");
+            System.out.println("0. Back");
+
+            int choice = readChoice();
+            switch (choice) {
+                case 1 -> categoriesView.handleMenu();
+                case 2 -> productsView.handleMenu();
+                case 3 -> variantAdminView.handleMenu();
+                case 0 -> { return; }
+                default -> System.out.println("Invalid option. Please try again.");
+            }
+            if (!ConsoleOutput.pause(scanner)) return;
+        }
+    }
+
+    // Groups restocking, stock adjustments, history and low-stock alerts.
+    private void inventoryManagementMenu(int adminId) {
+        while (true) {
+            ConsoleOutput.clearScreen();
+            System.out.println("\n===== INVENTORY MANAGEMENT =====");
+            System.out.println("1. Restock / Adjust / Stock Movement History");
+            System.out.println("2. View Low-Stock Alerts");
+            System.out.println("0. Back");
+
+            int choice = readChoice();
+            switch (choice) {
+                case 1 -> stockMovementView.handleMenu(adminId);
+                case 2 -> variantAdminView.displayLowStock();
+                case 0 -> { return; }
+                default -> System.out.println("Invalid option. Please try again.");
+            }
+            if (!ConsoleOutput.pause(scanner)) return;
+        }
+    }
+
+    // Routes Cashiers to individual sale operations using their session user ID.
     private void handleCashierChoice(int choice, int userId) {
         switch (choice) {
             case 1 -> productVariantView.handleMenu();
-            case 2 -> saleView.handleMenu(userId);
+            case 2 -> saleView.manageCart();
+            case 3 -> saleView.checkoutCurrentCart(userId);
+            case 4 -> saleView.showSalesHistory(userId);
+            case 5 -> saleView.reprintSavedReceipt(userId);
             default -> {
                 System.out.println("Invalid option. Please try again.");
                 ConsoleOutput.pause(scanner);
+                return;
             }
         }
+        if (choice >= 2 && choice <= 5) ConsoleOutput.pause(scanner);
     }
 
     // Handles nonnumeric choices without terminating the program.
