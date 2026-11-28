@@ -1,6 +1,9 @@
 package com.joysistvi.clothingretailapp.view;
 import com.joysistvi.clothingretailapp.service.SaleService;
 import com.joysistvi.clothingretailapp.service.UserService;
+import com.joysistvi.clothingretailapp.service.Product_VariantService;
+import com.joysistvi.clothingretailapp.model.Product_Variant;
+import java.util.List;
 import com.joysistvi.clothingretailapp.model.User;
 import java.math.BigDecimal;
 import com.joysistvi.clothingretailapp.model.Sale;
@@ -14,6 +17,7 @@ import java.util.Scanner;
 public class SaleView {
     private final SaleService sales;
     private final UserService users;
+    private final Product_VariantService variants;
     private final SaleItemView itemView;
     private final ConsoleInput input;
     private final Scanner scanner;
@@ -26,8 +30,15 @@ public class SaleView {
 
     // Resolves cashier usernames when showing sale history.
     public SaleView(SaleService sales, SaleItemView itemView, UserService users, Scanner scanner) {
+        this(sales, itemView, users, null, scanner);
+    }
+
+    // Displays the active variants and resolves SKU labels when managing a cart.
+    public SaleView(SaleService sales, SaleItemView itemView, UserService users,
+                    Product_VariantService variants, Scanner scanner) {
         this.sales = sales;
         this.users = users;
+        this.variants = variants;
         this.itemView = itemView;
         this.input = new ConsoleInput(scanner);
         this.scanner = scanner;
@@ -199,6 +210,8 @@ public class SaleView {
                 switch (choice) {
                     case 1 -> {
                         ConsoleOutput.operationHeader("ADD CART ITEM");
+                        // List available variants so the Cashier can choose a valid ID.
+                        if (!displayAvailableItems()) break;
                         int variantId = input.positive("Variant ID: ");
                         int quantity = input.positive("Quantity: ");
                         pendingCart.merge(variantId, quantity, Math::addExact);
@@ -206,9 +219,11 @@ public class SaleView {
                     }
                     case 2 -> {
                         ConsoleOutput.operationHeader("REMOVE CART ITEM");
-                        int variantId = input.positive("Variant ID to remove: ");
-                        System.out.println(pendingCart.remove(variantId) == null
-                                ? "Variant was not in the cart." : "Item removed from cart.");
+                        printCart();
+                        String sku = input.text("SKU (or variant ID) to remove: ");
+                        int variantId = findCartVariant(sku);
+                        System.out.println(variantId <= 0 || pendingCart.remove(variantId) == null
+                                ? "Item was not in the cart." : "Item removed from cart.");
                     }
                     case 3 -> {
                         ConsoleOutput.operationHeader("CLEAR CART");
@@ -234,9 +249,50 @@ public class SaleView {
             System.out.println("Your cart is empty.");
             return;
         }
-        System.out.printf("%-12s %-10s%n", "Variant ID", "Quantity");
+        System.out.printf("%-18s %-10s%n", "SKU", "Quantity");
         for (var item : pendingCart.entrySet()) {
-            System.out.printf("%-12d %-10d%n", item.getKey(), item.getValue());
+            System.out.printf("%-18s %-10d%n",
+                    ConsoleOutput.truncate(skuForVariant(item.getKey()), 18), item.getValue());
+        }
+    }
+
+    // Lists available variants before the Cashier adds a cart item.
+    private boolean displayAvailableItems() {
+        if (variants == null) return true; // Compatibility with existing manual tests.
+        List<Product_Variant> items = variants.getAllActiveVariants();
+        System.out.println("\n----- Available Items -----");
+        System.out.printf("%-7s %-16s %-8s %-12s %-10s %-8s%n",
+                "ID", "SKU", "Size", "Color", "Price", "Stock");
+        if (items == null || items.isEmpty()) {
+            System.out.println("No active items available.");
+            return false;
+        }
+        for (Product_Variant variant : items) {
+            System.out.printf("%-7d %-16s %-8s %-12s %-10.2f %-8d%n",
+                    variant.getVariant_id(), ConsoleOutput.truncate(variant.getSku(), 16),
+                    ConsoleOutput.truncate(variant.getSize(), 8), ConsoleOutput.truncate(variant.getColor(), 12),
+                    variant.getUnit_price(), variant.getStock_quantity());
+        }
+        return true;
+    }
+
+    // Resolves the SKU while retaining an ID fallback for removed variants.
+    private String skuForVariant(int variantId) {
+        if (variants == null) return "Variant #" + variantId;
+        Product_Variant variant = variants.findById(variantId);
+        return variant == null || variant.getSku() == null ? "Variant #" + variantId : variant.getSku();
+    }
+
+    // Finds the cart's variant by SKU, with ID support for archived/deleted items.
+    private int findCartVariant(String skuOrId) {
+        if (variants != null) {
+            Product_Variant found = variants.findBySku(skuOrId);
+            if (found != null) return found.getVariant_id();
+        }
+        try {
+            return Integer.parseInt(skuOrId);
+        } catch (NumberFormatException e) {
+            return -1;
         }
     }
 

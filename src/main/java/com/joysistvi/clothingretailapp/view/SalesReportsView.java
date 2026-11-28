@@ -62,7 +62,6 @@ public class SalesReportsView {
             System.out.println("3. Weekly Sales Report (Monday - Sunday)");
             System.out.println("4. Monthly Sales Report");
             System.out.println("5. Top-Selling Products");
-            System.out.println("6. Stock Summary / Most-Stocked Variants");
             System.out.println("0. Back");
             try {
                 int choice = input.integer("Choose an option: ");
@@ -73,7 +72,6 @@ public class SalesReportsView {
                     case 3 -> groupedSales(adminId, "Weekly", SalesReportsView::weekLabel);
                     case 4 -> groupedSales(adminId, "Monthly", date -> YearMonth.from(date).toString());
                     case 5 -> topSellingProducts(adminId);
-                    case 6 -> stockSummary();
                     default -> System.out.println("Invalid option. Please try again.");
                 }
                 if (!ConsoleOutput.pause(scanner)) return;
@@ -175,29 +173,6 @@ public class SalesReportsView {
     private String productName(int productId) {
         Products product = products.findById(productId);
         return product == null ? "Unknown product #" + productId : product.getName();
-    }
-
-    // Shows total stock and the variants with the highest remaining quantity.
-    private void stockSummary() {
-        ConsoleOutput.operationHeader("STOCK SUMMARY");
-        List<Product_Variant> all = new ArrayList<>(variants.getAllActiveVariants());
-        int total = all.stream().mapToInt(Product_Variant::getStock_quantity).sum();
-        long lowStock = all.stream().filter(Product_Variant::needsReorder).count();
-        System.out.println("\n----- Stock Summary -----");
-        System.out.println("Active variants: " + all.size());
-        System.out.println("Units in stock: " + total);
-        System.out.println("Low-stock variants: " + lowStock);
-        System.out.println("\nMost-Stocked Variants:");
-        if (all.isEmpty()) {
-            System.out.println("No active variants found.");
-            return;
-        }
-        System.out.printf("%-8s %-15s %-10s%n", "ID", "SKU", "Remaining");
-        all.stream().sorted(Comparator.comparingInt(Product_Variant::getStock_quantity).reversed())
-                .limit(10)
-                .forEach(variant -> System.out.printf("%-8d %-15s %-10d%n",
-                        variant.getVariant_id(), ConsoleOutput.truncate(variant.getSku(), 15),
-                        variant.getStock_quantity()));
     }
 
     // Holds the total sales count and revenue for one reporting period.

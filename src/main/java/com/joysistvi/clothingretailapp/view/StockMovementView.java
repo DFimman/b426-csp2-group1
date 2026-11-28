@@ -3,6 +3,7 @@ import com.joysistvi.clothingretailapp.service.StockMovementService;
 import com.joysistvi.clothingretailapp.service.Product_VariantService;
 import com.joysistvi.clothingretailapp.model.Product_Variant;
 import java.util.List;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.sql.SQLException;
 import java.util.NoSuchElementException;
@@ -82,6 +83,29 @@ public class StockMovementView {
                     movement.getSaleId() == null ? "-" : movement.getSaleId().toString(),
                     movement.getCreatedAt(), movement.getReason());
         }
+    }
+
+    // Shows total stock and the variants with the highest remaining quantity.
+    public void displayStockSummary() {
+        ConsoleOutput.operationHeader("STOCK SUMMARY");
+        List<Product_Variant> all = new ArrayList<>(variants.getAllActiveVariants());
+        int total = all.stream().mapToInt(Product_Variant::getStock_quantity).sum();
+        long lowStock = all.stream().filter(Product_Variant::needsReorder).count();
+        System.out.println("\n----- Stock Summary -----");
+        System.out.println("Active variants: " + all.size());
+        System.out.println("Units in stock: " + total);
+        System.out.println("Low-stock variants: " + lowStock);
+        System.out.println("\nMost-Stocked Variants:");
+        if (all.isEmpty()) {
+            System.out.println("No active variants found.");
+            return;
+        }
+        System.out.printf("%-8s %-15s %-10s%n", "ID", "SKU", "Remaining");
+        all.stream().sorted(Comparator.comparingInt(Product_Variant::getStock_quantity).reversed())
+                .limit(10)
+                .forEach(variant -> System.out.printf("%-8d %-15s %-10d%n",
+                        variant.getVariant_id(), ConsoleOutput.truncate(variant.getSku(), 15),
+                        variant.getStock_quantity()));
     }
 
     // Displays the active inventory without requiring a stock movement.
