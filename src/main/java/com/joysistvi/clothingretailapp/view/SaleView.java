@@ -1,5 +1,8 @@
 package com.joysistvi.clothingretailapp.view;
 import com.joysistvi.clothingretailapp.service.SaleService;
+import com.joysistvi.clothingretailapp.service.UserService;
+import com.joysistvi.clothingretailapp.model.User;
+import java.math.BigDecimal;
 import com.joysistvi.clothingretailapp.model.Sale;
 import com.joysistvi.clothingretailapp.model.SaleReceipt;
 import java.sql.SQLException;
@@ -10,6 +13,7 @@ import java.util.Scanner;
 
 public class SaleView {
     private final SaleService sales;
+    private final UserService users;
     private final SaleItemView itemView;
     private final ConsoleInput input;
     private final Scanner scanner;
@@ -17,8 +21,16 @@ public class SaleView {
 
     // Initializes SaleView with its required dependencies.
     public SaleView(SaleService sales, SaleItemView itemView, Scanner scanner) {
-        this.sales = sales; this.itemView = itemView;
-        this.input = new ConsoleInput(scanner); this.scanner = scanner;
+        this(sales, itemView, null, scanner);
+    }
+
+    // Resolves cashier usernames when showing sale history.
+    public SaleView(SaleService sales, SaleItemView itemView, UserService users, Scanner scanner) {
+        this.sales = sales;
+        this.users = users;
+        this.itemView = itemView;
+        this.input = new ConsoleInput(scanner);
+        this.scanner = scanner;
     }
 
     // The authenticated user ID must come from the login session, never from this menu.
@@ -34,7 +46,7 @@ public class SaleView {
                 int choice = input.integer("Select: ");
                 switch (choice) {
                     case 1 -> checkout(authenticatedUserId);
-                    case 2 -> history(authenticatedUserId);
+                    case 2 -> history(authenticatedUserId, false);
                     case 3 -> reprint(authenticatedUserId);
                     case 0 -> { return; }
                     default -> System.out.println("Invalid option.");
@@ -56,33 +68,113 @@ public class SaleView {
     // Validates and completes a cash sale transaction.
     private void checkout(int userId) throws SQLException {
         ConsoleOutput.operationHeader("NEW CASH SALE");
+        System.out.println("Enter \"0\" to continue to cash payment, or to exit with an empty cart.");
         Map<Integer, Integer> cart = new LinkedHashMap<>();
-        System.out.println("Enter each variant's ID and quantity (0 to finish).");
         while (true) {
-            int variant = input.integer("Variant ID (0 to finish): ");
+            int variant = promptVariantId();
             if (variant == 0) break;
-            if (variant < 0) throw new IllegalArgumentException("Variant ID must be positive");
-            int quantity = input.positive("Quantity: ");
-            // One row per variant, matching UNIQUE(sale_id, variant_id).
-            cart.merge(variant, quantity, Math::addExact);
+            int quantity = promptQuantity();
+            // Keep one sale line per variant and prevent integer overflow.
+            try {
+                cart.merge(variant, quantity, Math::addExact);
+            } catch (ArithmeticException e) {
+                System.out.println("Invalid input. Please try again. The quantity is too large.");
+            }
         }
-        if (cart.isEmpty()) { System.out.println("Checkout cancelled: empty cart."); return; }
-        var cash = input.money("Cash received: ");
-        SaleReceipt receipt = sales.checkout(userId, cart, cash);
-        try { displayReceipt(receipt); }
-        catch (RuntimeException e) { System.out.println("Sale saved as #" + receipt.getSale().getSaleId() + ". Reprint receipt later."); }
+        if (cart.isEmpty()) {
+            System.out.println("Checkout cancelled: empty cart.");
+            return;
+        }
+        while (true) {
+            BigDecimal cash = promptCashReceived();
+            if (cash.signum() == 0) {
+                System.out.println("Checkout cancelled.");
+                return;
+            }
+            try {
+                SaleReceipt receipt = sales.checkout(userId, cart, cash);
+                try { displayReceipt(receipt); }
+                catch (RuntimeException e) {
+                    System.out.println("Sale saved as #" + receipt.getSale().getSaleId() + ". Reprint receipt later.");
+                }
+                return;
+            } catch (IllegalArgumentException e) {
+                // Allow the cashier to retry the payment without discarding the cart.
+                System.out.println("Invalid input. Please try again: " + e.getMessage());
+                System.out.println("Enter a new cash amount to retry, or 0 to cancel.");
+                // A cancelled checkout has not changed the database.
+                // Insufficient cash is the common recoverable validation error.
+            }
+            if (cart.isEmpty()) return;
+        }
+    }
+
+    // Keeps requesting a valid variant ID instead of leaving the sale operation.
+    private int promptVariantId() {
+        while (true) {
+            try {
+                int id = Integer.parseInt(input.text("Variant ID (enter 0 to continue/exit): "));
+                if (id >= 0) return id;
+            } catch (NumberFormatException ignored) {
+                // Show the same input message for letters and negative numbers.
+            }
+            System.out.println("Invalid input. Please try again. Enter a valid variant ID.");
+        }
+    }
+
+    // Repeats the quantity prompt until a positive whole number is entered.
+    private int promptQuantity() {
+        while (true) {
+            try {
+                int quantity = Integer.parseInt(input.text("Quantity: "));
+                if (quantity > 0) return quantity;
+            } catch (NumberFormatException ignored) {
+                // Keep the customer on the same item line.
+            }
+            System.out.println("Invalid input. Please try again. Enter a positive quantity.");
+        }
+    }
+
+    // Rejects invalid cash input without leaving the sale operation.
+    private BigDecimal promptCashReceived() {
+        while (true) {
+            try {
+                BigDecimal cash = new BigDecimal(input.text("Cash received (0 to cancel): "));
+                if (cash.signum() >= 0) return cash;
+            } catch (NumberFormatException ignored) {
+                // Keep requesting a valid monetary value.
+            }
+            System.out.println("Invalid input. Please try again. Enter a nonnegative cash amount.");
+        }
     }
 
     // Lists the relevant transaction or movement history.
-    private void history(int userId) throws SQLException {
+    private void history(int userId, boolean mySales) throws SQLException {
         ConsoleOutput.operationHeader("SALES HISTORY");
         var records = sales.history(userId);
         if (records.isEmpty()) { System.out.println("No completed sales found."); return; }
-        System.out.printf("%-8s %-10s %-20s %12s %12s%n", "Sale ID", "Cashier", "Date", "Total", "Status");
-        for (Sale sale : records) {
-            System.out.printf("%-8d %-10d %-20s %12s %12s%n", sale.getSaleId(), sale.getUserId(),
-                    sale.getSaleDatetime(), sale.getTotalAmount(), sale.getStatus());
+        if (mySales) {
+            // The logged-in Cashier already knows whose sales are displayed.
+            System.out.printf("%-8s %-20s %12s %12s%n", "Sale ID", "Date", "Total", "Status");
+            for (Sale sale : records) {
+                System.out.printf("%-8d %-20s %12s %12s%n", sale.getSaleId(),
+                        sale.getSaleDatetime(), sale.getTotalAmount(), sale.getStatus());
+            }
+        } else {
+            System.out.printf("%-8s %-20s %-20s %12s %12s%n", "Sale ID", "Username", "Date", "Total", "Status");
+            for (Sale sale : records) {
+                System.out.printf("%-8d %-20s %-20s %12s %12s%n", sale.getSaleId(),
+                        ConsoleOutput.truncate(cashierUsername(sale.getUserId()), 20),
+                        sale.getSaleDatetime(), sale.getTotalAmount(), sale.getStatus());
+            }
         }
+    }
+
+    // Resolves the cashier username, retaining a readable fallback for deleted accounts.
+    private String cashierUsername(int userId) {
+        if (users == null) return "User #" + userId;
+        User user = users.findById(userId);
+        return user == null ? "User #" + userId : user.getUsername();
     }
 
     // Reprints a previously saved sale receipt.
@@ -173,7 +265,7 @@ public class SaleView {
 
     // Shows the signed-in Cashier's sales without opening the Sales submenu.
     public void showSalesHistory(int userId) {
-        try { history(userId); }
+        try { history(userId, true); }
         catch (SQLException e) { System.out.println("Database Error: " + e.getMessage()); }
         catch (RuntimeException e) { System.out.println("Operation failed: " + e.getMessage()); }
     }

@@ -53,9 +53,9 @@ public class App {
                 saleItemRepository, stockMovementRepository, guardRepository);
         StockMovementService stockMovementService = new StockMovementServiceImpl(
                 dbConnection, stockMovementRepository, guardRepository);
-        saleView = new SaleView(saleService, new SaleItemView(), scanner);
+        saleView = new SaleView(saleService, new SaleItemView(), userService, scanner);
         stockMovementView = new StockMovementView(stockMovementService, variantService, scanner);
-        reportsView = new SalesReportsView(saleService, variantService, productsService, scanner);
+        reportsView = new SalesReportsView(saleService, variantService, productsService, userService, scanner);
     }
 
     // Starts the program and handles database initialization errors.

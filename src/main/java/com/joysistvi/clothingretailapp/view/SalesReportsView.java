@@ -7,6 +7,8 @@ import com.joysistvi.clothingretailapp.model.SaleItem;
 import com.joysistvi.clothingretailapp.service.Product_VariantService;
 import com.joysistvi.clothingretailapp.service.ProductsService;
 import com.joysistvi.clothingretailapp.service.SaleService;
+import com.joysistvi.clothingretailapp.service.UserService;
+import com.joysistvi.clothingretailapp.model.User;
 
 import java.math.BigDecimal;
 import java.sql.SQLException;
@@ -27,6 +29,7 @@ import java.util.function.Function;
 
 public class SalesReportsView {
     private final SaleService sales;
+    private final UserService users;
     private final Product_VariantService variants;
     private final ProductsService products;
     private final ConsoleInput input;
@@ -35,9 +38,16 @@ public class SalesReportsView {
     // Reuses the existing sales and catalog services for basic reports.
     public SalesReportsView(SaleService sales, Product_VariantService variants,
                             ProductsService products, Scanner scanner) {
+        this(sales, variants, products, null, scanner);
+    }
+
+    // Resolves cashier names in the completed-sales report.
+    public SalesReportsView(SaleService sales, Product_VariantService variants,
+                            ProductsService products, UserService users, Scanner scanner) {
         this.sales = sales;
         this.variants = variants;
         this.products = products;
+        this.users = users;
         this.scanner = scanner;
         this.input = new ConsoleInput(scanner);
     }
@@ -96,10 +106,12 @@ public class SalesReportsView {
             System.out.println("No completed sales found.");
             return;
         }
-        System.out.printf("%-8s %-10s %-21s %12s%n", "Sale ID", "Cashier", "Date / Time", "Total");
+        System.out.printf("%-8s %-20s %-21s %12s%n", "Sale ID", "Username", "Date / Time", "Total");
         for (Sale sale : all) {
-            System.out.printf("%-8d %-10d %-21s %12s%n", sale.getSaleId(), sale.getUserId(),
-                    sale.getSaleDatetime(), sale.getTotalAmount());
+            User cashier = users == null ? null : users.findById(sale.getUserId());
+            String username = cashier == null ? "User #" + sale.getUserId() : cashier.getUsername();
+            System.out.printf("%-8d %-20s %-21s %12s%n", sale.getSaleId(),
+                    ConsoleOutput.truncate(username, 20), sale.getSaleDatetime(), sale.getTotalAmount());
         }
     }
 
