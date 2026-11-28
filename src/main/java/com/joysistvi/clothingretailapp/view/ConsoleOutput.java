@@ -1,13 +1,18 @@
 package com.joysistvi.clothingretailapp.view;
 
 public final class ConsoleOutput {
-
     private ConsoleOutput() {}
 
     // Clears the console in terminals with ANSI support
     public static void clearScreen() {
         System.out.print("\033[H\033[2J");
         System.out.flush();
+    }
+
+    // Clears the previous screen and identifies the operation being performed.
+    public static void operationHeader(String title) {
+        clearScreen();
+        System.out.println("\n===== " + title + " =====");
     }
 
     // Keep operation results visible before the next screen is cleared

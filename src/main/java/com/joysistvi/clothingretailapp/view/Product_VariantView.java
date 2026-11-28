@@ -59,15 +59,14 @@ public class Product_VariantView {
 
     // Displays the available product variants.
     private void displayCatalog() {
-        clearScreen();
+        ConsoleOutput.operationHeader("BROWSE PRODUCT CATALOG");
         List<Product_Variant> variants = variantService.getAllActiveVariants();
         printCatalog(variants, "Available Items");
     }
 
     // Prompts the user to search.
     private void promptSearch() {
-        clearScreen();
-        System.out.println("\n----- Search Items -----");
+        ConsoleOutput.operationHeader("SEARCH PRODUCT CATALOG");
         String keyword = getStringInput("Enter product name, SKU, size or color: ");
         if (keyword == null) {
             return;

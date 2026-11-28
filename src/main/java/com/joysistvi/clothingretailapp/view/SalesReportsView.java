@@ -90,6 +90,7 @@ public class SalesReportsView {
 
     // Prints all completed sales for the Admin.
     private void allSales(int adminId) throws SQLException {
+        ConsoleOutput.operationHeader("ALL COMPLETED SALES");
         List<Sale> all = completedSales(adminId);
         if (all.isEmpty()) {
             System.out.println("No completed sales found.");
@@ -104,6 +105,7 @@ public class SalesReportsView {
 
     // Groups sale counts and revenue by day, Monday-based week, or month.
     private void groupedSales(int adminId, String title, Function<LocalDateTime, String> period) throws SQLException {
+        ConsoleOutput.operationHeader(title.toUpperCase() + " SALES REPORT");
         Map<String, Summary> groups = new TreeMap<>();
         for (Sale sale : completedSales(adminId)) {
             if (sale.getSaleDatetime() == null) continue;
@@ -130,6 +132,7 @@ public class SalesReportsView {
 
     // Counts units sold per product across completed sale item receipts.
     private void topSellingProducts(int adminId) throws SQLException {
+        ConsoleOutput.operationHeader("TOP-SELLING PRODUCTS");
         Map<String, ProductSales> totals = new HashMap<>();
         for (Sale sale : completedSales(adminId)) {
             for (SaleItem item : sales.receipt(adminId, sale.getSaleId()).getItems()) {
@@ -164,6 +167,7 @@ public class SalesReportsView {
 
     // Shows total stock and the variants with the highest remaining quantity.
     private void stockSummary() {
+        ConsoleOutput.operationHeader("STOCK SUMMARY");
         List<Product_Variant> all = new ArrayList<>(variants.getAllActiveVariants());
         int total = all.stream().mapToInt(Product_Variant::getStock_quantity).sum();
         long lowStock = all.stream().filter(Product_Variant::needsReorder).count();

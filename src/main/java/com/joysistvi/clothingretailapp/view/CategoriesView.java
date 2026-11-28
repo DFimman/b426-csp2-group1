@@ -55,11 +55,12 @@ public class CategoriesView {
     }
 
     public void displayAllCategories() {
+        ConsoleOutput.operationHeader("VIEW ACTIVE CATEGORIES");
         printCategoryTable("\n----- Active Categories -----", categoriesService.findAllActive());
     }
 
     public void promptCreateCategory() {
-        System.out.println("\n=== CREATE Category ===");
+        ConsoleOutput.operationHeader("CREATE CATEGORY");
         String name = input.text("Enter category name: ");
         String description = input.text("Enter description (optional): ");
         boolean created = categoriesService.save(new Categories(0, name, description, false));
@@ -67,7 +68,8 @@ public class CategoriesView {
     }
 
     public void promptUpdateCategory() {
-        displayAllCategories();
+        ConsoleOutput.operationHeader("UPDATE CATEGORY");
+        printCategoryTable("\n----- Active Categories -----", categoriesService.findAllActive());
         int id = input.positive("Enter category ID to update: ");
         Categories current = categoriesService.findById(id);
         if (current == null) {
@@ -83,18 +85,21 @@ public class CategoriesView {
     }
 
     public void promptSearchCategories() {
+        ConsoleOutput.operationHeader("SEARCH CATEGORIES");
         String keyword = input.text("Enter category name keyword: ");
         printCategoryTable("\n----- Search Results -----", categoriesService.searchByName(keyword));
     }
 
     public void promptArchiveCategory() {
-        displayAllCategories();
+        ConsoleOutput.operationHeader("ARCHIVE CATEGORY");
+        printCategoryTable("\n----- Active Categories -----", categoriesService.findAllActive());
         int id = input.positive("Enter category ID to archive: ");
         boolean archived = categoriesService.archiveById(id);
         System.out.println(archived ? "Category archived successfully!" : "No category archived.");
     }
 
     public void promptRestoreCategory() {
+        ConsoleOutput.operationHeader("RESTORE CATEGORY");
         printCategoryTable("\n----- Archived Categories -----", categoriesService.findAllArchived());
         int id = input.positive("Enter category ID to restore: ");
         boolean restored = categoriesService.restoreById(id);
@@ -102,6 +107,7 @@ public class CategoriesView {
     }
 
     public void promptDeleteCategory() {
+        ConsoleOutput.operationHeader("DELETE CATEGORY (MAINTENANCE)");
         int id = input.positive("Enter category ID to permanently delete: ");
         String confirm = input.text("Type YES to confirm permanent deletion: ");
         if (!"YES".equals(confirm)) {

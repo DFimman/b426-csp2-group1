@@ -17,6 +17,7 @@ public class StockMovementView {
     // Displays and handles the stock movement menu.
     public void handleMenu(int authenticatedAdminId) {
         while (true) {
+            ConsoleOutput.clearScreen();
             System.out.println("\n=== STOCK MOVEMENTS (ADMIN) ===");
             System.out.println("1. Restock variant");
             System.out.println("2. Adjust variant stock (+/-)");
@@ -46,6 +47,7 @@ public class StockMovementView {
 
     // Prompts for and records a manual stock change.
     private void change(int adminId, String type) throws SQLException {
+        ConsoleOutput.operationHeader("RESTOCK".equals(type) ? "RESTOCK VARIANT" : "ADJUST VARIANT STOCK");
         int variantId = input.positive("Variant ID: ");
         int delta = "RESTOCK".equals(type) ? input.positive("Units to add: ") : input.integer("Signed change (+/-): ");
         String reason = input.text("Reason: ");
@@ -55,6 +57,7 @@ public class StockMovementView {
 
     // Lists the relevant transaction or movement history.
     private void history(int adminId) throws SQLException {
+        ConsoleOutput.operationHeader("STOCK MOVEMENT HISTORY");
         int variantId = input.positive("Variant ID: ");
         var records = service.history(adminId, variantId);
         if (records.isEmpty()) { System.out.println("No movements found."); return; }

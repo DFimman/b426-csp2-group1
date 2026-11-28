@@ -61,10 +61,12 @@ public class ProductsView {
     }
 
     public void displayAllProducts() {
+        ConsoleOutput.operationHeader("VIEW ACTIVE PRODUCTS");
         printProductTable("\n----- Active Products -----", productsService.findAllActive());
     }
 
     public void promptCreateProduct() {
+        ConsoleOutput.operationHeader("CREATE PRODUCT");
         if (!displayActiveCategories()) return;
         int categoryId = input.positive("Enter category ID: ");
         String name = input.text("Enter product name: ");
@@ -74,7 +76,8 @@ public class ProductsView {
     }
 
     public void promptUpdateProduct() {
-        displayAllProducts();
+        ConsoleOutput.operationHeader("UPDATE PRODUCT");
+        printProductTable("\n----- Active Products -----", productsService.findAllActive());
         int id = input.positive("Enter product ID to update: ");
         Products current = productsService.findById(id);
         if (current == null) {
@@ -93,12 +96,14 @@ public class ProductsView {
     }
 
     public void promptSearchProducts() {
+        ConsoleOutput.operationHeader("SEARCH PRODUCTS");
         String keyword = input.text("Enter product name keyword: ");
         printProductTable("\n----- Search Results -----", productsService.searchByName(keyword));
     }
 
     // Prompts the user to products by category.
     public void promptProductsByCategory() {
+        ConsoleOutput.operationHeader("VIEW PRODUCTS BY CATEGORY");
         if (!displayActiveCategories()) return;
         int categoryId = input.positive("Enter category ID: ");
         printProductTable("\n----- Active Products By Category -----",
@@ -107,13 +112,15 @@ public class ProductsView {
 
 
     public void promptArchiveProduct() {
-        displayAllProducts();
+        ConsoleOutput.operationHeader("ARCHIVE PRODUCT");
+        printProductTable("\n----- Active Products -----", productsService.findAllActive());
         int id = input.positive("Enter product ID to archive: ");
         boolean archived = productsService.archiveById(id);
         System.out.println(archived ? "Product archived successfully!" : "No product archived.");
     }
 
     public void promptRestoreProduct() {
+        ConsoleOutput.operationHeader("RESTORE PRODUCT");
         printProductTable("\n----- Archived Products -----", productsService.findAllArchived());
         int id = input.positive("Enter product ID to restore: ");
         boolean restored = productsService.restoreById(id);
@@ -121,6 +128,7 @@ public class ProductsView {
     }
 
     public void promptDeleteProduct() {
+        ConsoleOutput.operationHeader("DELETE PRODUCT (MAINTENANCE)");
         int id = input.positive("Enter product ID to permanently delete: ");
         String confirm = input.text("Type YES to confirm permanent deletion: ");
         if (!"YES".equals(confirm)) {

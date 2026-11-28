@@ -63,7 +63,7 @@ public class UserView {
 
     // Displays all users records.
     public void displayAllUsers(boolean isArchived) {
-        clearScreen();
+        ConsoleOutput.operationHeader(isArchived ? "VIEW ARCHIVED CASHIERS" : "VIEW ACTIVE CASHIERS");
         List<User> users = isArchived ? userService.getAllArchivedUsers() : userService.getAllActiveUsers();
 
         String title = isArchived ? "Archived Cashiers" : "Active Cashiers";
@@ -73,8 +73,7 @@ public class UserView {
 
     // Prompts the user to create user.
     public void promptCreateUser() {
-        clearScreen();
-        System.out.println("\n----- Create New User -----");
+        ConsoleOutput.operationHeader("REGISTER CASHIER ACCOUNT");
 
         String username = getStringInput("Enter username: ");
         if (username == null) {
@@ -110,8 +109,7 @@ public class UserView {
 
     // Prompts the user to update user.
     public void promptUpdateUser() {
-        clearScreen();
-        System.out.println("\n----- Update User -----");
+        ConsoleOutput.operationHeader("UPDATE CASHIER ACCOUNT");
         Integer id = getIntInput("Enter user id: ");
         if (id == null) return;
 
@@ -143,8 +141,7 @@ public class UserView {
 
     // Prompts the user to delete user.
     public void promptDeleteUser() {
-        clearScreen();
-        System.out.println("\n----- Delete User -----");
+        ConsoleOutput.operationHeader("DELETE CASHIER ACCOUNT (MAINTENANCE)");
         Integer id = getIntInput("Enter user id: ");
         if (id == null) {
             return;
@@ -162,8 +159,7 @@ public class UserView {
 
     // Prompts the user to archive user.
     public void promptArchiveUser() {
-        clearScreen();
-        System.out.println("\n----- Archive User -----");
+        ConsoleOutput.operationHeader("ARCHIVE CASHIER ACCOUNT");
         Integer id = getIntInput("Enter user id: ");
         if (id == null) {
             return;
@@ -181,8 +177,7 @@ public class UserView {
 
     // Prompts the user to restore user.
     public void promptRestoreUser() {
-        clearScreen();
-        System.out.println("\n----- Restore User -----");
+        ConsoleOutput.operationHeader("RESTORE CASHIER ACCOUNT");
         List<User> users = userService.getAllArchivedUsers();
         printUsers(users, "Archived Cashiers");
 
@@ -207,8 +202,7 @@ public class UserView {
 
     // Prompts the user to search users.
     public void promptSearchUsers() {
-        clearScreen();
-        System.out.println("\n----- Search Users -----");
+        ConsoleOutput.operationHeader("SEARCH CASHIER ACCOUNTS");
         String keyword = getStringInput("Enter keyword (search): ");
         if (keyword == null) {
             return;
@@ -220,8 +214,7 @@ public class UserView {
 
     // Prompts the user to login user.
     public void promptLoginUser() {
-        clearScreen();
-        System.out.println("\n----- Login User -----");
+        ConsoleOutput.operationHeader("CASHIER LOGIN TEST");
         String username = getStringInput("Enter username: ");
         if (username == null) {
             return;

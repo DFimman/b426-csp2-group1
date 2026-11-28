@@ -203,9 +203,11 @@ public class App {
                 case 2 -> productsView.handleMenu();
                 case 3 -> variantAdminView.handleMenu();
                 case 0 -> { return; }
-                default -> System.out.println("Invalid option. Please try again.");
+                default -> {
+                    System.out.println("Invalid option. Please try again.");
+                    if (!ConsoleOutput.pause(scanner)) return;
+                }
             }
-            if (!ConsoleOutput.pause(scanner)) return;
         }
     }
 
@@ -223,9 +225,12 @@ public class App {
                 case 1 -> stockMovementView.handleMenu(adminId);
                 case 2 -> variantAdminView.displayLowStock();
                 case 0 -> { return; }
-                default -> System.out.println("Invalid option. Please try again.");
+                default -> {
+                    System.out.println("Invalid option. Please try again.");
+                    if (!ConsoleOutput.pause(scanner)) return;
+                }
             }
-            if (!ConsoleOutput.pause(scanner)) return;
+            if (choice == 2) ConsoleOutput.pause(scanner);
         }
     }
 
@@ -243,7 +248,8 @@ public class App {
                 return;
             }
         }
-        if (choice >= 2 && choice <= 5) ConsoleOutput.pause(scanner);
+        // Manage Cart already pauses after each cart operation.
+        if (choice >= 3 && choice <= 5) ConsoleOutput.pause(scanner);
     }
 
     // Handles nonnumeric choices without terminating the program.

@@ -24,6 +24,7 @@ public class SaleView {
     // The authenticated user ID must come from the login session, never from this menu.
     public void handleMenu(int authenticatedUserId) {
         while (true) {
+            ConsoleOutput.clearScreen();
             System.out.println("\n=== SALES / CHECKOUT ===");
             System.out.println("1. New cash sale");
             System.out.println("2. Sales history");
@@ -54,6 +55,7 @@ public class SaleView {
 
     // Validates and completes a cash sale transaction.
     private void checkout(int userId) throws SQLException {
+        ConsoleOutput.operationHeader("NEW CASH SALE");
         Map<Integer, Integer> cart = new LinkedHashMap<>();
         System.out.println("Enter each variant's ID and quantity (0 to finish).");
         while (true) {
@@ -73,6 +75,7 @@ public class SaleView {
 
     // Lists the relevant transaction or movement history.
     private void history(int userId) throws SQLException {
+        ConsoleOutput.operationHeader("SALES HISTORY");
         var records = sales.history(userId);
         if (records.isEmpty()) { System.out.println("No completed sales found."); return; }
         System.out.printf("%-8s %-10s %-20s %12s %12s%n", "Sale ID", "Cashier", "Date", "Total", "Status");
@@ -84,6 +87,7 @@ public class SaleView {
 
     // Reprints a previously saved sale receipt.
     private void reprint(int userId) throws SQLException {
+        ConsoleOutput.operationHeader("REPRINT RECEIPT");
         int saleId = input.positive("Sale ID: ");
         displayReceipt(sales.receipt(userId, saleId));
     }
@@ -91,6 +95,7 @@ public class SaleView {
     // Lets the Cashier prepare, review, remove or clear items before checkout.
     public void manageCart() {
         while (true) {
+            ConsoleOutput.clearScreen();
             System.out.println("\n=== MANAGE CART ===");
             printCart();
             System.out.println("1. Add Item");
@@ -101,17 +106,20 @@ public class SaleView {
                 int choice = input.integer("Select: ");
                 switch (choice) {
                     case 1 -> {
+                        ConsoleOutput.operationHeader("ADD CART ITEM");
                         int variantId = input.positive("Variant ID: ");
                         int quantity = input.positive("Quantity: ");
                         pendingCart.merge(variantId, quantity, Math::addExact);
                         System.out.println("Item added to cart. Stock will be verified at checkout.");
                     }
                     case 2 -> {
+                        ConsoleOutput.operationHeader("REMOVE CART ITEM");
                         int variantId = input.positive("Variant ID to remove: ");
                         System.out.println(pendingCart.remove(variantId) == null
                                 ? "Variant was not in the cart." : "Item removed from cart.");
                     }
                     case 3 -> {
+                        ConsoleOutput.operationHeader("CLEAR CART");
                         pendingCart.clear();
                         System.out.println("Cart cleared.");
                     }
@@ -123,6 +131,8 @@ public class SaleView {
             } catch (RuntimeException e) {
                 System.out.println("Validation Error: " + e.getMessage());
             }
+            // Do not clear the result until the Cashier has read it.
+            if (!ConsoleOutput.pause(scanner)) return;
         }
     }
 
@@ -140,6 +150,7 @@ public class SaleView {
 
     // Completes the prepared cart using the authenticated Cashier account.
     public void checkoutCurrentCart(int userId) {
+        ConsoleOutput.operationHeader("CASH CHECKOUT");
         if (pendingCart.isEmpty()) {
             System.out.println("Checkout cancelled: add items to your cart first.");
             return;

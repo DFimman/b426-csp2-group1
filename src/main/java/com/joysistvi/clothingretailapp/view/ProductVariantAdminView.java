@@ -36,8 +36,14 @@ public class ProductVariantAdminView {
                 int choice = input.integer("Choose an option: ");
                 if (choice == 0) return;
                 switch (choice) {
-                    case 1 -> displayTable(service.getAllActiveVariants(), "Active Variants");
-                    case 2 -> displayTable(service.getAllArchivedVariants(), "Archived Variants");
+                    case 1 -> {
+                        ConsoleOutput.operationHeader("VIEW ACTIVE VARIANTS");
+                        displayTable(service.getAllActiveVariants(), "Active Variants");
+                    }
+                    case 2 -> {
+                        ConsoleOutput.operationHeader("VIEW ARCHIVED VARIANTS");
+                        displayTable(service.getAllArchivedVariants(), "Archived Variants");
+                    }
                     case 3 -> createVariant();
                     case 4 -> updateVariant();
                     case 5 -> searchVariants();
@@ -60,6 +66,7 @@ public class ProductVariantAdminView {
 
     // Creates a variant with zero starting stock for movement tracking.
     private void createVariant() {
+        ConsoleOutput.operationHeader("CREATE PRODUCT VARIANT");
         int productId = input.positive("Product ID: ");
         String sku = input.text("SKU: ");
         String size = input.text("Size: ");
@@ -72,6 +79,7 @@ public class ProductVariantAdminView {
 
     // Updates variant details while preserving stock movement records.
     private void updateVariant() {
+        ConsoleOutput.operationHeader("UPDATE PRODUCT VARIANT");
         displayTable(service.getAllActiveVariants(), "Active Variants");
         int id = input.positive("Variant ID to update: ");
         Product_Variant current = service.findById(id);
@@ -102,12 +110,14 @@ public class ProductVariantAdminView {
 
     // Searches variants by their unique SKU.
     private void searchVariants() {
+        ConsoleOutput.operationHeader("SEARCH PRODUCT VARIANTS");
         String keyword = input.text("SKU keyword: ");
         displayTable(service.searchVariants(keyword), "Search Results");
     }
 
     // Archives a variant without deleting its sales history.
     private void archiveVariant() {
+        ConsoleOutput.operationHeader("ARCHIVE PRODUCT VARIANT");
         displayTable(service.getAllActiveVariants(), "Active Variants");
         int id = input.positive("Variant ID to archive: ");
         Product_Variant current = service.findById(id);
@@ -121,6 +131,7 @@ public class ProductVariantAdminView {
 
     // Restores an archived variant only when its parent is usable.
     private void restoreVariant() {
+        ConsoleOutput.operationHeader("RESTORE PRODUCT VARIANT");
         displayTable(service.getAllArchivedVariants(), "Archived Variants");
         int id = input.positive("Variant ID to restore: ");
         boolean restored = service.restoreVariant(id);
@@ -129,6 +140,7 @@ public class ProductVariantAdminView {
 
     // Lists the active variants at or below their reorder levels.
     public void displayLowStock() {
+        ConsoleOutput.operationHeader("LOW-STOCK ALERTS");
         displayTable(service.getLowStockVariants(), "Low-Stock Alerts");
     }
 
